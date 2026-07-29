@@ -1,0 +1,275 @@
+# product-team-skills
+
+A coordinated product team as **27 Agent Skills** — 19 role perspectives plus an 8-skill delivery pipeline — with a routing brain that decides which one a request belongs to.
+
+Invoke a role when you want a specific discipline's judgement: a PRD, a component spec, an accessibility review, a threat model, a motion spec, a release decision. Run the pipeline when a coding task should be classified, chunked and verified rather than just done.
+
+Every role is project-agnostic, so the same suite works on any codebase without dragging another project's context along.
+
+## Quick start
+
+**Claude Code (terminal):**
+
+```
+/plugin marketplace add afaconti-glitch/product-team-skills
+/plugin install product-team@productteam-skills
+```
+
+**Claude Desktop** — `/plugin` is terminal-only, so use the CLI:
+
+```bash
+claude plugin marketplace add afaconti-glitch/product-team-skills
+claude plugin install product-team@productteam-skills
+```
+
+Restart your session. All 27 skills appear in **Settings → Skills** and become invocable by name.
+
+```
+/product-manager Turn this vague feature request into a delivery-ready ticket.
+```
+
+> **Installed from the old `ProductTeam-skills` repo?** It has moved here — see [Migrating](#migrating-from-the-old-repo).
+
+## Invoking a skill
+
+Type `/` then the skill name, **and give it the task in the same message.** Invoking bare loads the persona with no brief, and it will just ask you what you want.
+
+```
+/product-designer Our reports page is blank for new users. Design the empty state.
+/security-specialist Review this migration for RLS gaps.
+/accessibility-specialist This chart uses colour alone for four series. Problem?
+/run-pipeline Add a /health route returning DB connectivity.
+```
+
+Two forms both work:
+
+| Form | Use when |
+|---|---|
+| `/product-designer` | Normal use — shortest form |
+| `/product-team:product-designer` | Unambiguous. Needed only if a personal or project skill shares the name |
+
+### They do not fire on their own
+
+Every skill sets `disable-model-invocation: true`. Describing a design problem in prose will **not** auto-summon `/product-designer`. That is deliberate: automatic invocation selects by description keyword-matching, and testing showed that picks badly — "payments integration" pulled the Pricing Strategist, "release risk" pulled the Delivery Manager.
+
+You get selection two ways instead:
+
+- **Explicitly**, with `/name` — when you know which discipline you want.
+- **Via the routing brain**, by asking in plain prose — when you don't. See [The routing brain](#the-routing-brain-optional-second-layer).
+
+### Once invoked, a skill stays loaded
+
+The persona persists across turns for the rest of the conversation. Invoke a different one to switch; start a fresh session to drop it.
+
+## The 27 skills
+
+### Product and strategy
+
+| Invoke | Use when |
+|---|---|
+| `/product-manager` | Value, scope, outcomes, prioritisation, PRDs, backlog structure |
+| `/product-strategist` | Market positioning, vision, strategic bets, competitive framing |
+| `/growth-product-marketing-manager` | Adoption, activation, messaging, funnel, CRO, content strategy, SEO |
+| `/pricing-strategist` | Pricing models, tier structure, packaging, willingness-to-pay |
+
+### Research, insight and data
+
+| Invoke | Use when |
+|---|---|
+| `/ux-researcher` | Research planning, discovery, interviews, synthesis, validation |
+| `/data-analyst` | Metrics, dashboards, funnels, experiments, behavioural evidence |
+| `/customer-success` | Customer feedback, retention signals, adoption blockers |
+| `/storm-researcher` | Contested or strategic research — five-perspective scan, contradiction mapping, adversarial review |
+
+### Design and experience
+
+| Invoke | Use when |
+|---|---|
+| `/product-designer` | UX, UI, flows, interaction design, design QA |
+| `/content-designer` | UX writing, labels, errors, onboarding, comprehension |
+| `/design-systems-specialist` | Components, tokens, theming, UI foundation choice, component source intake |
+| `/motion-designer` | Animation, transitions, micro-interactions, pointer effects, ambient/WebGL backgrounds, motion tokens, reduced motion, animation performance |
+| `/accessibility-specialist` | WCAG review, inclusive design, assistive-tech risk, data-visualisation accessibility |
+
+### Engineering, delivery and quality
+
+| Invoke | Use when |
+|---|---|
+| `/software-engineer` | Implementation, feasibility, trade-offs, library selection, version-matched API use |
+| `/technical-architect` | System design, integration strategy, scalability, standing-dependency evaluation |
+| `/devops-engineer` | CI/CD, environments, deployment and rollback, observability — risk in the *running system* |
+| `/security-specialist` | Threat modelling, audits, auth/RLS review, DPIA, supply chain and licence boundaries, AI safety |
+| `/qa-engineer` | Test planning, regression, bug reporting, durable proof of verification |
+| `/delivery-manager` | Delivery planning, dependencies, ceremonies — risk to *schedule and flow* |
+
+### Delivery pipeline
+
+| Invoke | Use when |
+|---|---|
+| `/run-pipeline` | **Start here for any coding task.** Classifies Small / Medium / Large and dispatches |
+| `/requirements-generator` | Turning a rough request into a confirmation-ready brief |
+| `/shape-task` | Decomposing a brief into requirements, strategy and chunks |
+| `/execute-chunk` | Implementing one approved chunk with scoped edits and targeted validation |
+| `/close-chunk` | Verifying a chunk against its acceptance criteria |
+| `/cleanup-verify` | Post-run sweep: regenerate artefacts, rebuild, run the gate chain, report drift |
+| `/diagnose` | Root-cause analysis — reproduce → isolate → verify → fix |
+| `/design-critique` | Final-pass design review with a SHIP / SHIP_WITH_NOTES / HOLD decision |
+
+Two roles carry reference material that loads only when needed: `/security-specialist` (a nine-category audit cookbook and a health-data domain pack) and `/motion-designer` (standards, libraries and component-gallery intake).
+
+## Install options
+
+| Route | Command | You get |
+|---|---|---|
+| **Plugin** *(recommended)* | `claude plugin install product-team@productteam-skills` | All 27 skills, visible in Settings → Skills, updatable with one command. Skills only |
+| **Per project** | `install.sh /path/to/project` | Skills in `<project>/.claude/skills/` **plus** the routing brain in its `CLAUDE.md` |
+| **Personal** | `install.sh --personal` | Skills in `~/.claude/skills/` — every project. Skills only |
+| **Submodule** | `install.sh --submodule /path/to/project` | Per-project, pinned to a tag, symlinked so discovery still works |
+
+The script is in the repo, so clone first for those routes:
+
+```bash
+git clone https://github.com/afaconti-glitch/product-team-skills.git
+./product-team-skills/install.sh /path/to/your-project
+```
+
+It copies the skills, appends the routing brain to `CLAUDE.md` **with the paths already rewritten**, updates `.gitignore`, and seeds a pipeline adapter template. Re-running updates the routing block in place between its markers and leaves anything you wrote above it alone.
+
+### Which route
+
+- **Just want the skills, everywhere, visible?** Plugin.
+- **Want role arbitration too?** Plugin *plus* a per-project install — they stack. Only the per-project route can add `routing.md`, because `CLAUDE.md` is a per-project file.
+- **Want it pinned and tracked in the consuming repo?** Submodule.
+
+**The repo is the source, not an installation.** Cloning it makes the skills visible nowhere. Claude Code discovers them at `~/.claude/skills/<name>/SKILL.md` or `<project>/.claude/skills/<name>/SKILL.md`; the Skills panel lists only plugin-provided skills. Pick a route above, or you will not see them.
+
+### Precedence and duplicates
+
+Enterprise overrides personal, personal overrides project, and any of them overrides a plugin skill of the same name. So a personal install **shadows the plugin silently** — both work, but you are running the copy you probably did not mean to update. Pick one route per machine.
+
+### Cost
+
+The plugin adds roughly **2,300 tokens of always-on metadata to every session**, including projects with nothing to do with product work. Check it yourself with `claude plugin details product-team`. If that is unwelcome:
+
+```bash
+claude plugin disable product-team      # off, still installed
+claude plugin install ... --scope project   # confine it to one repo
+```
+
+### Migrating from the old repo
+
+This suite previously lived at `afaconti-glitch/ProductTeam-skills`, which is now archived. If you installed from there:
+
+```bash
+# 1. point the marketplace at the new repo
+claude plugin marketplace remove productteam-skills
+claude plugin marketplace add afaconti-glitch/product-team-skills
+claude plugin install product-team@productteam-skills
+
+# 2. if you used a filesystem install from an older layout, clear the stale
+#    nested pipeline directory — skills are flat now
+rm -r ~/.claude/skills/pipeline            # personal installs
+rm -r <project>/.claude/skills/pipeline    # project installs
+```
+
+Earlier versions nested the eight pipeline skills one level deeper, so an old install leaves that directory behind and they end up present twice. `install.sh` detects this and prints the exact command rather than deleting anything itself.
+
+### Compatibility
+
+The skills are plain markdown following the [Agent Skills](https://agentskills.io) standard, so they work with any host that reads `SKILL.md`. The plugin route, `/name` invocation and `claude plugin` CLI are Claude Code features. The routing brain is a `CLAUDE.md` convention and needs a host that reads that file.
+
+## The routing brain (optional second layer)
+
+[`routing.md`](./routing.md) goes in a project's `CLAUDE.md` and decides which role or squad a request belongs to, so you can ask in prose instead of picking a skill:
+
+> "The error message when a payment fails is confusing. Rewrite it." → Content Designer
+> "This chart distinguishes four series by colour alone." → Accessibility Specialist
+> "Fix the typo in the footer." → no specialist; it is a mechanical edit
+
+It also defines **six squads** for cross-functional work — Discovery, Definition, Delivery, Validation, Growth, Platform — because "is this ready to ship?" is not one discipline's call.
+
+Measured at **89.6% selection accuracy** across 16 cases (up from 70.8%). Two findings drove the improvement, both worth knowing if you edit it:
+
+- **Keyword collision beats persona overlap.** A single salient word drags a request to the wrong role. Where roles genuinely overlap, routing coped fine.
+- **The roles table outweighs the prose rules below it.** One case failed 0/3 across three prose edits, then passed when two words changed in the table. Put load-bearing distinctions in the table.
+
+## Delivery pipeline
+
+`/run-pipeline` is the entry point. It classifies scope, surfaces a plan for confirmation, then dispatches — Small runs a single scoped change, Medium adds requirements/shaping and a chunk loop, Large adds repository inspection and an architect plan.
+
+Two documents make it portable:
+
+| Document | Purpose |
+|---|---|
+| [`reference/project-adapter.md`](./reference/project-adapter.md) | Your project's package manager, gate chain, generated artefacts, risky paths, host integrations. Copy to `.claude/pipeline-adapter.md` and fill in |
+| [`reference/state-schema.md`](./reference/state-schema.md) | The shared state contract, and how skills degrade when state is unavailable |
+
+**It runs without an adapter.** Skills fall back to discovering commands from repository instructions, manifests, CI config and the lockfile, and state what they found. Writing the adapter makes it deterministic and lets you declare what discovery cannot infer — which gates may fail, which paths are risky, whether an independent reviewer exists.
+
+Nothing assumes a JavaScript toolchain, a specific agent host, or a writable cache.
+
+### Verified by running, not reading
+
+| Testbed | Result |
+|---|---|
+| npm project **with** an adapter — blocking drift gate, ratcheted style gate at accepted baseline 3, deliberately stale artefact | `run-pipeline`, `execute-chunk`, `close-chunk`, `cleanup-verify` all correct |
+| Python/Make project with **no adapter** and no cache | Discovery fallback correct, zero JavaScript assumptions |
+
+Specifically observed: a "one-line" schema change correctly promoted Small → Medium; `execute-chunk` skipping the build and drift gates because the chunk did not touch a declared risk path; `close-chunk` re-running the gate chain itself rather than trusting the implementer's report; `cleanup-verify` regenerating a stale artefact, refusing to commit it, withholding the gate stamp and returning `BLOCKED`.
+
+## Repository layout
+
+```
+product-team-skills/
+├── .claude-plugin/
+│   ├── plugin.json                   # makes this an installable plugin
+│   └── marketplace.json              # makes the repo an addable marketplace
+├── skills/                           # all 27 skills, flat, one directory each
+│   ├── product-manager/SKILL.md
+│   ├── motion-designer/
+│   │   ├── SKILL.md
+│   │   └── references/motion-resources.md
+│   ├── security-specialist/
+│   │   ├── SKILL.md
+│   │   └── references/               # audit cookbook, healthcare pack
+│   ├── run-pipeline/SKILL.md         # pipeline skills sit alongside roles
+│   └── ...
+├── reference/                        # shared docs, deliberately not skills
+│   ├── project-adapter.md
+│   └── state-schema.md
+├── routing.md                        # the routing brain
+├── install.sh
+└── README.md
+```
+
+`reference/` holds documents that five pipeline skills share. They are not skills, so they sit outside `skills/` rather than being forced into a directory that pretends otherwise.
+
+## Conventions
+
+- All skills use **UK English**.
+- Frontmatter carries `name` and `description` (the two fields the standard requires) plus `license`, `compatibility`, `disable-model-invocation`, and a `metadata` block with `version`, `persona_type`, `tags`, `intents` and `output_types`. Everything past the first two is this repo's own convention; hosts ignore what they do not recognise.
+- Keep skill bodies **under 500 lines**, per [Anthropic's authoring guidance](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). Past that, move detail into that skill's `references/` and link to it with a stated trigger for when to read it.
+- Every skill ends with `## Maintenance` listing its review triggers. Treat that as a versioning prompt: bump the skill's `version` whenever behaviour-shaping content changes.
+
+## Versioning
+
+Semver, tagged `v<MAJOR>.<MINOR>.<PATCH>` on `main`.
+
+- **MAJOR** — breaking change to a skill's contract or to installed paths.
+- **MINOR** — new skill, new intent, new output type.
+- **PATCH** — wording, clarifications, frontmatter fixes.
+
+Consuming projects should pin to a tag and update deliberately.
+
+## Licence
+
+[MIT](./LICENSE). Use it, fork it, adapt it. Attribution appreciated but the licence only requires the copyright notice.
+
+## Contributing
+
+Issues and pull requests welcome.
+
+- Follow the existing skill structure when adding one.
+- Update [routing.md](./routing.md): a row in the relevant table, squad memberships if cross-functional, and an entry in the specialist-routing examples. **The table matters more than the prose** — see the routing findings above.
+- Bump the skill's frontmatter `version` on behaviour-shaping changes.
+- Tag a release after merge to `main`.

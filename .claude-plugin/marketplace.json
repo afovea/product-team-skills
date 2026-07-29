@@ -1,0 +1,19 @@
+{
+  "name": "productteam-skills",
+  "description": "Product-team role skills and a delivery pipeline, packaged as an installable plugin.",
+  "owner": {
+    "name": "Anthony Faconti"
+  },
+  "plugins": [
+    {
+      "name": "product-team",
+      "description": "A coordinated product team as 27 skills: 19 role perspectives across product, research, design, engineering and delivery, plus an 8-skill delivery pipeline with scope classification and per-chunk verification. Includes a routing brain that decides which role a request belongs to.",
+      "author": {
+        "name": "Anthony Faconti"
+      },
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/afaconti-glitch/product-team-skills"
+    }
+  ]
+}

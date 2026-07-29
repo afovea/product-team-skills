@@ -1,0 +1,9 @@
+{
+  "name": "product-team",
+  "description": "A coordinated product team as 27 skills: 19 role perspectives (product, research, design, engineering, delivery) plus an 8-skill delivery pipeline that classifies work by size and verifies each chunk. Use when work needs a specific discipline's judgement — a PRD, a component spec, an accessibility review, a threat model, a motion spec, a release decision — or when a coding task should run through scoped execution with gate checks.",
+  "author": {
+    "name": "Anthony Faconti"
+  },
+  "homepage": "https://github.com/afaconti-glitch/product-team-skills",
+  "license": "MIT"
+}
