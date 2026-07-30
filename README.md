@@ -147,14 +147,60 @@ It copies the skills, appends the routing brain to `CLAUDE.md` **with the paths 
 
 Enterprise overrides personal, personal overrides project, and any of them overrides a plugin skill of the same name. So a personal install **shadows the plugin silently** — both work, but you are running the copy you probably did not mean to update. Pick one route per machine.
 
-### Cost
+### Context cost, and how to turn it down
 
-The plugin adds roughly **2,300 tokens of always-on metadata to every session**, including projects with nothing to do with product work. Check it yourself with `claude plugin details product-team`. If that is unwelcome:
+Installing 27 skills is not free. Two different costs, and the second is the one that actually bites.
+
+**Always-on** — every skill's `name` and `description` are preloaded into the system prompt so the host knows what exists. That is **~1,800 tokens on every session**, including projects with nothing to do with product work. Nothing else loads until a skill is invoked.
+
+**On-invoke** — the skill's body enters the conversation when you call it, and **stays there for the rest of the session**. That ranges from ~1k to ~9.5k tokens depending on the skill. This is the larger number by far.
+
+See your own figures, per skill:
 
 ```bash
-claude plugin disable product-team      # off, still installed
-claude plugin install ... --scope project   # confine it to one repo
+claude plugin details product-team
 ```
+
+The heaviest bodies are worth knowing before you invoke them casually:
+
+| Skill | always-on | on-invoke |
+|---|---:|---:|
+| `motion-designer` | ~210 | ~9.5k |
+| `run-pipeline` | ~80 | ~5.8k |
+| `security-specialist` | ~90 | ~5.6k |
+| `storm-researcher` | ~70 | ~4.9k |
+| *typical role* | ~50 | ~1.3–2.5k |
+
+#### Turn the always-on cost off entirely
+
+```bash
+claude plugin disable product-team          # off, still installed
+claude plugin enable product-team           # back on
+claude plugin disable --all                 # every plugin
+```
+
+`disable` takes `--scope user|project|local`, so you can switch the suite off globally and leave it on in one repo, or the reverse.
+
+#### Scope it to the projects that need it
+
+Installing at project scope keeps the always-on cost out of every unrelated session:
+
+```bash
+claude plugin install product-team@productteam-skills --scope project
+```
+
+#### Drop skills you never use
+
+There is no per-skill disable. Two ways to trim anyway:
+
+- **Filesystem install** — delete the directories you do not want. `install.sh --personal` then `rm -r ~/.claude/skills/motion-designer` removes that skill and its always-on share. Losing `motion-designer` alone saves ~210 tokens per session, more than four typical roles.
+- **Fork the plugin** — remove the skill directories from `skills/` and point your marketplace at your fork. Survives updates; a filesystem deletion does not.
+
+#### Managing the on-invoke cost
+
+- A skill loads **once** per session. Re-invoking the same one adds a short note, not a second copy.
+- Start a fresh session to clear loaded skills, rather than invoking a different one to "switch".
+- After auto-compaction, invoked skills are re-attached at up to 5,000 tokens each within a **combined 25,000-token budget**, most-recent first. Invoke many heavy skills in one session and the earliest ones get dropped entirely — so if a skill seems to stop influencing behaviour after a long session, re-invoke it.
 
 ### Migrating from the old repo
 
