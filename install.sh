@@ -31,7 +31,7 @@ warn_stale_layout() {
   echo
 }
 
-SUITE_URL="https://github.com/afaconti-glitch/product-team-skills.git"
+SUITE_URL="https://github.com/afovea/product-team-skills.git"
 MODE="copy"
 TARGET=""
 

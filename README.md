@@ -11,14 +11,14 @@ Every role is project-agnostic, so the same suite works on any codebase without 
 **Claude Code (terminal):**
 
 ```
-/plugin marketplace add afaconti-glitch/product-team-skills
+/plugin marketplace add afovea/product-team-skills
 /plugin install product-team@productteam-skills
 ```
 
 **Claude Desktop** — `/plugin` is terminal-only, so use the CLI:
 
 ```bash
-claude plugin marketplace add afaconti-glitch/product-team-skills
+claude plugin marketplace add afovea/product-team-skills
 claude plugin install product-team@productteam-skills
 ```
 
@@ -129,7 +129,7 @@ Two roles carry reference material that loads only when needed: `/security-speci
 The script is in the repo, so clone first for those routes:
 
 ```bash
-git clone https://github.com/afaconti-glitch/product-team-skills.git
+git clone https://github.com/afovea/product-team-skills.git
 ./product-team-skills/install.sh /path/to/your-project
 ```
 
@@ -158,12 +158,12 @@ claude plugin install ... --scope project   # confine it to one repo
 
 ### Migrating from the old repo
 
-This suite previously lived at `afaconti-glitch/ProductTeam-skills`, which is now archived. If you installed from there:
+This suite previously lived at `afovea/ProductTeam-skills`, which is now archived. If you installed from there:
 
 ```bash
 # 1. point the marketplace at the new repo
 claude plugin marketplace remove productteam-skills
-claude plugin marketplace add afaconti-glitch/product-team-skills
+claude plugin marketplace add afovea/product-team-skills
 claude plugin install product-team@productteam-skills
 
 # 2. if you used a filesystem install from an older layout, clear the stale
