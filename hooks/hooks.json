@@ -1,0 +1,16 @@
+{
+  "description": "Enforces the pipeline gate chain before a turn can close",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/gate-stop.py\"",
+            "timeout": 1800
+          }
+        ]
+      }
+    ]
+  }
+}

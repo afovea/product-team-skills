@@ -224,6 +224,8 @@ Earlier versions nested the eight pipeline skills one level deeper, so an old in
 
 The skills are plain markdown following the [Agent Skills](https://agentskills.io) standard, so they work with any host that reads `SKILL.md`. The plugin route, `/name` invocation and `claude plugin` CLI are Claude Code features. The routing brain is a `CLAUDE.md` convention and needs a host that reads that file.
 
+Gate enforcement is the one capability that does not travel. Hooks are a Claude Code feature, so on any other `SKILL.md` host the pipeline skills still run and still report a failing gate — they just cannot be stopped by one. The skills remain fully portable; only the `Stop` hook is host-specific.
+
 ## The routing brain (optional second layer)
 
 [`routing.md`](./routing.md) goes in a project's `CLAUDE.md` and decides which role or squad a request belongs to, so you can ask in prose instead of picking a skill:
@@ -263,6 +265,49 @@ Nothing assumes a JavaScript toolchain, a specific agent host, or a writable cac
 
 Specifically observed: a "one-line" schema change correctly promoted Small → Medium; `execute-chunk` skipping the build and drift gates because the chunk did not touch a declared risk path; `close-chunk` re-running the gate chain itself rather than trusting the implementer's report; `cleanup-verify` regenerating a stale artefact, refusing to commit it, withholding the gate stamp and returning `BLOCKED`.
 
+### Enforcing the gates
+
+Everything above describes what the pipeline *should* do. A skill that says "run the gate chain" is an instruction, and an instruction can be skipped. `cleanup-verify` returning `BLOCKED` is a report, not a stop.
+
+The plugin ships a `Stop` hook that makes it a stop. Hooks are the only layer in Claude Code that runs as code rather than as instruction, so the gate chain becomes non-negotiable rather than well-intentioned.
+
+| File | Role |
+|---|---|
+| `scripts/gate-chain.py` | Resolves and runs the gate chain, reports a JSON result, writes a stamp |
+| `hooks/gate-stop.py` | The `Stop` hook: refuses to end the turn while a blocking gate is failing |
+| `hooks/hooks.json` | Registers the hook. Loads automatically when the plugin is enabled |
+
+**It only wakes up for an open run.** A `Stop` hook fires every turn, so the hook first looks for a pipeline state file under `.claude/`. No state file, no gates, no cost. Detection is by shape rather than by exact filename, so renaming the state contract does not break it. A run can opt out entirely with `"gate_required": false` in its state.
+
+**A pass is bound to the tree it ran against.** The stamp records a fingerprint of `HEAD`, the full uncommitted diff, and the contents of every untracked file git is not ignoring. That last part matters: new source files are untracked until they are committed, and without hashing them a green result would go on vouching for a file it had only ever seen in its first version. Any subsequent edit invalidates the stamp.
+
+**It will not trap you.** After three consecutive blocks on the same tree the hook releases the turn with a warning rather than looping.
+
+`gate-chain.py` is standalone and dependency-free, so pipeline skills can invoke it directly instead of describing the chain in prose:
+
+```bash
+python3 scripts/gate-chain.py run --stamp     # run the chain, stamp on pass
+python3 scripts/gate-chain.py status          # is there a valid stamp?
+python3 scripts/gate-chain.py gates           # show the resolved chain
+```
+
+Gate resolution follows the same declare-then-discover pattern as the rest of the pipeline, first hit wins:
+
+1. `.claude/pipeline-gates.json`
+2. a ` ```gates ` fenced block in `.claude/pipeline-adapter.md`
+3. discovery from `package.json`, `Makefile` or `pyproject.toml`
+
+The adapter form is one gate per line, `name: command`, with a leading `?` marking a gate non-blocking:
+
+```gates
+lint: npm run lint
+typecheck: npm run typecheck
+test: npm test
+?style: npm run style
+```
+
+Scratch files live in `.claude/.gate/`, which excludes itself from version control. Nothing needs adding to a consuming project's `.gitignore`.
+
 ## Repository layout
 
 ```
@@ -280,6 +325,11 @@ product-team-skills/
 │   │   └── references/               # audit cookbook, healthcare pack
 │   ├── run-pipeline/SKILL.md         # pipeline skills sit alongside roles
 │   └── ...
+├── hooks/                            # deterministic enforcement
+│   ├── hooks.json                    # registers the Stop hook
+│   └── gate-stop.py                  # blocks the turn on a failing gate
+├── scripts/
+│   └── gate-chain.py                 # standalone gate chain runner
 ├── reference/                        # shared docs, deliberately not skills
 │   ├── project-adapter.md
 │   └── state-schema.md
