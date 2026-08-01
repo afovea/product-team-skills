@@ -229,6 +229,18 @@ These apply across roles, because the failure they prevent is silent.
 
 Depth lives in the role files: Software Engineer for selection and version-matched use, Technical Architect for standing dependencies, Design Systems Specialist for UI foundations and copied component source, Security Specialist for licence and supply-chain exposure.
 
+## Driving the browser
+
+This applies across roles, because the failure it prevents reads as a pass.
+
+**Claude in Chrome always navigates natively: act on element references, never on screen coordinates.** Resolve the target from the page's own structured representation — the accessibility tree and element references the browser exposes — and act on that reference. Do not derive an action from pixel positions read off a screenshot.
+
+Coordinates are only true for the instant the screenshot was taken. Layout shift, lazy-loaded content, a sticky header, scroll position, zoom, device pixel ratio, a consent banner or an A/B variant all move the target while the coordinates stay confidently the same. The click still lands — on whatever is underneath it now — so the transcript reads like success and the step that mattered never ran.
+
+- Snapshot the page, find the element by role, name or label, then act on its reference.
+- Screenshots are evidence, not a control surface. Use them to verify what happened and to review visual design, not to decide where to click.
+- If a control has no referenceable element — an unlabelled icon button, a `div` carrying a click handler, a canvas-drawn control — that is an accessibility finding. Report it; do not route around it with coordinates.
+
 ## Definition of Ready for Development
 
 A piece of work is ready for development when:
