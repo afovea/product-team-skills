@@ -5,15 +5,21 @@
 #   ./install.sh /path/to/repo              # into one project (default)
 #   ./install.sh --submodule /path/to/repo  # pinned to a tag, symlinked for discovery
 #   ./install.sh --personal                 # into ~/.claude/skills, every project
+#   ./install.sh --memory                   # global memory only, no skills
 #
 # Project modes place the skills under the project's .claude/skills/ and append
 # the routing brain to its CLAUDE.md with paths already rewritten — the step
 # most likely to be got wrong by hand. Copy mode leaves the project free to
 # diverge; submodule mode keeps updates deliberate.
 #
-# Personal mode installs the skills only. They become available in every
-# project as /<name>, but their metadata also loads in every project, including
-# ones with nothing to do with product work. The routing brain stays per-project.
+# Personal mode installs the skills into ~/.claude/skills, available in every
+# project as /<name> — but their metadata also loads in every project, including
+# ones with nothing to do with product work. It also writes the global memory
+# block to ~/.claude/CLAUDE.md. The routing brain stays per-project.
+#
+# Memory mode writes only that global block: the rules that must hold in every
+# session regardless of project, with none of the per-skill context cost. Use it
+# alongside the plugin route, which cannot reach CLAUDE.md by itself.
 
 set -euo pipefail
 
@@ -34,29 +40,92 @@ warn_stale_layout() {
 SUITE_URL="https://github.com/afovea/product-team-skills.git"
 MODE="copy"
 TARGET=""
+SUITE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --submodule) MODE="submodule"; shift ;;
     --copy)      MODE="copy"; shift ;;
     --personal)  MODE="personal"; shift ;;
-    -h|--help)   sed -n '2,16p' "$0" | sed 's/^# \?//'; exit 0 ;;
+    --memory)    MODE="memory"; shift ;;
+    -h|--help)   sed -n '2,22p' "$0" | sed 's/^# \?//'; exit 0 ;;
     *)           TARGET="$1"; shift ;;
   esac
 done
 
-# Personal install: skills only, into ~/.claude/skills/, available in every
-# project. No CLAUDE.md, .gitignore or adapter — those are project concerns.
-# Note the cost: personal skills load their metadata in every project you open,
-# including ones with nothing to do with product work.
+# ------------------------------------------------------------- global memory
+#
+# Rules that have to hold in every session, not just in product work: they go
+# to ~/.claude/CLAUDE.md, which Claude Code reads in every project on this
+# machine. Per-project installs already carry them inside the routing block, so
+# only the personal and memory routes write here.
+#
+# The text has one source — routing.md, between its global-memory markers — so
+# the two delivery routes cannot drift apart.
+
+GLOBAL_START="<!-- product-team-skills:global:start -->"
+GLOBAL_END="<!-- product-team-skills:global:end -->"
+
+install_global_memory() {
+  local dest="$HOME/.claude/CLAUDE.md"
+  local block tmp
+  block="$(python3 - "$SUITE_ROOT/routing.md" <<'PY'
+import sys, pathlib
+src = pathlib.Path(sys.argv[1]).read_text()
+_, _, rest = src.partition("<!-- global-memory:start -->")
+body, _, closed = rest.partition("<!-- global-memory:end -->")
+if not closed or not body.strip():
+    sys.exit("error: routing.md has no complete global-memory block")
+sys.stdout.write(body.strip())
+PY
+)"
+
+  mkdir -p "$HOME/.claude"
+  if [[ -f "$dest" ]] && grep -qF "$GLOBAL_START" "$dest"; then
+    # Same reason as the CLAUDE.md rewrite below: stdin is taken by the
+    # heredoc carrying the script, so the block travels via a temp file.
+    tmp="$(mktemp)"
+    printf '%s' "$block" > "$tmp"
+    python3 - "$dest" "$GLOBAL_START" "$GLOBAL_END" "$tmp" <<'PY'
+import sys, pathlib
+path, start, end, block_file = sys.argv[1:5]
+block = pathlib.Path(block_file).read_text()
+p = pathlib.Path(path); t = p.read_text()
+head, _, rest = t.partition(start)
+_, _, tail = rest.partition(end)
+p.write_text(f"{head}{start}\n{block}\n{end}{tail}")
+PY
+    rm -f "$tmp"
+    echo "  updated global memory block in ~/.claude/CLAUDE.md"
+  else
+    { [[ -f "$dest" ]] && printf '\n'; printf '%s\n%s\n%s\n' "$GLOBAL_START" "$block" "$GLOBAL_END"; } >> "$dest"
+    echo "  wrote global memory block to ~/.claude/CLAUDE.md"
+  fi
+}
+
+# Memory mode touches nothing else — no skills, no project files.
+if [[ "$MODE" == "memory" ]]; then
+  echo "Installing global memory"
+  install_global_memory
+  echo
+  echo "Applies in every project on this machine, alongside any install route."
+  echo "It does not reach the Claude apps or the Chrome extension — those read"
+  echo "account-level preferences. See 'Account-level memory' in the README."
+  exit 0
+fi
+
+# Personal install: skills into ~/.claude/skills/ plus the global memory block,
+# both available in every project. No .gitignore or adapter — those are project
+# concerns. Note the cost: personal skills load their metadata in every project
+# you open, including ones with nothing to do with product work.
 if [[ "$MODE" == "personal" ]]; then
-  SUITE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   DEST="$HOME/.claude/skills"
   mkdir -p "$DEST"
   cp -R "$SUITE_ROOT"/skills/*  "$DEST/"
   warn_stale_layout "$DEST"
   echo "Installed to $DEST"
   echo "  $(find "$DEST" -maxdepth 2 -name SKILL.md | wc -l | tr -d ' ') skills"
+  install_global_memory
   echo
   echo "Available in every project as /<name>, e.g. /product-manager."
   echo "The routing brain is a per-project concern — run this without --personal"
@@ -64,7 +133,6 @@ if [[ "$MODE" == "personal" ]]; then
   exit 0
 fi
 
-SUITE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET="${TARGET:-$PWD}"
 
 [[ -d "$TARGET" ]] || { echo "error: target '$TARGET' is not a directory" >&2; exit 1; }
@@ -130,8 +198,13 @@ MARK_START="<!-- product-team-skills:start -->"
 MARK_END="<!-- product-team-skills:end -->"
 CLAUDE_MD="$TARGET/CLAUDE.md"
 
-# Rewrite the paths in routing.md to match where the files actually landed.
-ROUTING="$(sed -e "s#\`\.claude/skills/#\`$SKILL_PREFIX/#g" "$SUITE_ROOT/routing.md")"
+# Rewrite the paths in routing.md to match where the files actually landed, and
+# drop the global-memory markers: they tell the personal route where to cut, and
+# mean nothing once the block is sitting in a project's CLAUDE.md. Two separate
+# delete expressions rather than one alternation — BSD sed has no \| in a BRE.
+ROUTING="$(sed -e "s#\`\.claude/skills/#\`$SKILL_PREFIX/#g" \
+               -e '/<!-- global-memory:start -->/d' \
+               -e '/<!-- global-memory:end -->/d' "$SUITE_ROOT/routing.md")"
 
 if [[ -f "$CLAUDE_MD" ]] && grep -qF "$MARK_START" "$CLAUDE_MD"; then
   # The routing text goes via a temp file, not stdin: stdin is already taken by

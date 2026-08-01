@@ -123,7 +123,8 @@ Two roles carry reference material that loads only when needed: `/security-speci
 |---|---|---|
 | **Plugin** *(recommended)* | `claude plugin install product-team@productteam-skills` | All 27 skills, visible in Settings → Skills, updatable with one command. Skills only |
 | **Per project** | `install.sh /path/to/project` | Skills in `<project>/.claude/skills/` **plus** the routing brain in its `CLAUDE.md` |
-| **Personal** | `install.sh --personal` | Skills in `~/.claude/skills/` — every project. Skills only |
+| **Personal** | `install.sh --personal` | Skills in `~/.claude/skills/` **plus** the global memory block in `~/.claude/CLAUDE.md` — every project |
+| **Global memory** | `install.sh --memory` | The global memory block only. No skills, so none of the per-skill context cost |
 | **Submodule** | `install.sh --submodule /path/to/project` | Per-project, pinned to a tag, symlinked so discovery still works |
 
 The script is in the repo, so clone first for those routes:
@@ -139,9 +140,42 @@ It copies the skills, appends the routing brain to `CLAUDE.md` **with the paths 
 
 - **Just want the skills, everywhere, visible?** Plugin.
 - **Want role arbitration too?** Plugin *plus* a per-project install — they stack. Only the per-project route can add `routing.md`, because `CLAUDE.md` is a per-project file.
+- **Want a rule to hold in every session, not only in product work?** `--memory`. It stacks with the plugin, which ships skills and hooks and so cannot reach `CLAUDE.md` on its own.
 - **Want it pinned and tracked in the consuming repo?** Submodule.
 
 **The repo is the source, not an installation.** Cloning it makes the skills visible nowhere. Claude Code discovers them at `~/.claude/skills/<name>/SKILL.md` or `<project>/.claude/skills/<name>/SKILL.md`; the Skills panel lists only plugin-provided skills. Pick a route above, or you will not see them.
+
+### Global memory
+
+Some rules are not about product work and should not wait to be routed to a role — they have to hold in any session that can reach a browser, a shell or a repository. Those live in one block in [`routing.md`](./routing.md), between its `global-memory` markers.
+
+It reaches you by two routes, from that single source, so the two cannot drift apart:
+
+| Route | Where it lands | Reach |
+|---|---|---|
+| `install.sh --personal` or `--memory` | `~/.claude/CLAUDE.md` | Every project on that machine |
+| `install.sh /path/to/project` | the project's `CLAUDE.md`, inside the routing block | That project, for anyone who clones it |
+
+Both are idempotent and marker-delimited: re-running replaces the block in place and leaves everything you wrote around it alone.
+
+### Account-level memory
+
+`~/.claude/CLAUDE.md` covers every Claude Code session **on one machine**. It does not reach the Claude apps (web, desktop, mobile) or the Claude in Chrome extension. Those read your account's preferences, which sync to every session you are signed into, on every device.
+
+**Nothing in this repo can write there** — it is a setting on your account, not a file on disk. To make a rule hold on those surfaces too, paste it into Claude's settings under personal preferences:
+
+```text
+When driving a browser, act on element references from the page's structured
+representation — the accessibility tree — never on screen coordinates read off
+a screenshot. Coordinates are true only for the instant the screenshot was
+taken; layout shift, lazy loading, scroll position, zoom or a consent banner
+move the target while the coordinates stay the same, so the click still lands,
+on whatever is underneath it now, and the run reads as a pass. If a control has
+no referenceable element, report it as an accessibility finding rather than
+working around it with coordinates.
+```
+
+The two are complementary rather than alternatives: the account preference covers the Chrome extension and the apps, the install routes cover Claude Code.
 
 ### Precedence and duplicates
 

@@ -229,6 +229,7 @@ These apply across roles, because the failure they prevent is silent.
 
 Depth lives in the role files: Software Engineer for selection and version-matched use, Technical Architect for standing dependencies, Design Systems Specialist for UI foundations and copied component source, Security Specialist for licence and supply-chain exposure.
 
+<!-- global-memory:start -->
 ## Driving the browser
 
 This applies across roles, because the failure it prevents reads as a pass.
@@ -240,6 +241,7 @@ Coordinates are only true for the instant the screenshot was taken. Layout shift
 - Snapshot the page, find the element by role, name or label, then act on its reference.
 - Screenshots are evidence, not a control surface. Use them to verify what happened and to review visual design, not to decide where to click.
 - If a control has no referenceable element — an unlabelled icon button, a `div` carrying a click handler, a canvas-drawn control — that is an accessibility finding. Report it; do not route around it with coordinates.
+<!-- global-memory:end -->
 
 ## Definition of Ready for Development
 
