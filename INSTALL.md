@@ -1,400 +1,412 @@
-# Installing product-team-skills
+# How to install these skills
 
-**Start here: [Step 0 — which product are you using?](#step-0--which-product-are-you-using)**
+**No coding needed.** The main way to install takes about five minutes and
+happens entirely in Claude — you download some files and upload them. There is
+no terminal, no code, and nothing to set up on your computer.
 
-Almost every failed install comes from running the right command in the wrong
-product. "Claude" is four different things, and they install skills four
-different ways. Pick your row, follow that section, stop.
-
----
-
-## Step 0 — which product are you using?
-
-| What you are looking at | That product is | Go to |
-|---|---|---|
-| A **terminal** where you typed `claude` | Claude Code CLI | [Route A](#route-a--claude-code-in-a-terminal) — 2 min |
-| The **Claude desktop app**, on the **Code** tab | Claude Code Desktop | [Route B](#route-b--claude-code-desktop-app) — 2 min |
-| The **Claude desktop app**, on the **Chat** tab, or **claude.ai** in a browser | Claude apps (chat) | [Route D](#route-d--claude-apps-chat-and-cowork) — 5 min |
-| **claude.ai/code**, a GitHub Action, or a cloud/remote session | Claude Code cloud | [Route C](#route-c--claude-code-cloud-and-web-sessions) — 3 min |
-| You want the skills **committed into one repo** for your team | any | [Route E](#route-e--filesystem-install-installsh) — 3 min |
-
-> **The single most common mistake.** The Claude desktop app contains both
-> Claude Code (**Code** tab) and the chat product (**Chat** tab). They do not
-> share an install mechanism. The Code tab uses plugins; the Chat tab uses
-> uploaded skills. Installing into one does not install into the other.
-
-### Three names that look alike
-
-You will type all three. They are deliberately listed here because guessing
-wrong is the most common terminal error:
-
-| Thing | Value | Where you type it |
-|---|---|---|
-| GitHub repo | `afovea/product-team-skills` | `marketplace add` |
-| Marketplace | `productteam-skills` — **no hyphen after `product`** | `install …@productteam-skills` |
-| Plugin | `product-team` | `install product-team` |
-
-Typing `product-team@product-team-skills` — the natural guess — fails with:
-
-```
-Plugin "product-team" not found in marketplace "product-team-skills".
-```
-
-**You can avoid the whole problem: `claude plugin install product-team` works
-without the `@marketplace` suffix.** Use that form.
+If you have never installed anything into Claude before, start at
+[Part 1](#part-1--which-claude-are-you-using) and follow it straight down.
 
 ---
 
-## Route A — Claude Code in a terminal
+## What you are installing
 
-**Requirement:** Claude Code v2.1.143 or later. Check with `claude --version`.
-If `/plugin` is not recognised, update: `npm install -g @anthropic-ai/claude-code@latest`.
+27 expert personas. You ask Claude a question, and it answers as a product
+manager, a UX researcher, an accessibility specialist, and so on — with that
+discipline's judgement rather than a generic answer.
 
-### 1. Add the marketplace
+You do **not** need all 27. Most people use four or five. There is a suggested
+starting set below.
 
-Inside a Claude Code session:
+---
 
-```
-/plugin marketplace add afovea/product-team-skills
-```
+## Part 1 — which Claude are you using?
 
-Expect: `Successfully added marketplace: productteam-skills`
+This decides everything else, and it is the step people get wrong. Look at your
+screen and match it:
 
-### 2. Install the plugin
-
-```
-/plugin install product-team
-```
-
-Expect: `Successfully installed plugin: product-team@productteam-skills (scope: user)`
-
-### 3. Activate it
-
-Read the install summary Claude Code prints:
-
-| It says | You do |
+| What you see | Go to |
 |---|---|
-| `Plugin is now active.` | Nothing. Go to step 4. |
-| `Run /reload-plugins to activate.` | Run `/reload-plugins`. If it warns about re-reading the conversation, run `/reload-plugins --force`. |
+| Claude in a **web browser** (the address bar says `claude.ai`) | **[Part 2](#part-2--install-5-minutes-no-terminal)** |
+| The **Claude app** on your computer, and you are chatting normally | **[Part 2](#part-2--install-5-minutes-no-terminal)** |
+| The **Claude app**, and you clicked the **Code** tab at the top | [Part 5](#part-5--if-you-use-the-code-tab) |
+| A black or white window where you type commands (a "terminal") | [Part 6](#part-6--terminal-instructions-only-if-you-need-them) |
 
-### 4. Verify before you rely on it
+**Not sure?** Choose Part 2. It is the normal way to use Claude, and it is the
+route these instructions are built around.
 
-```
-/plugin list
-```
+---
 
-You should see `product-team@productteam-skills` with `Status: enabled`.
+## Part 2 — install (5 minutes, no terminal)
 
-Then type a `/` and start typing `product-` — `product-manager`,
-`product-designer` and `product-strategist` should appear in the completion
-list. If they do, you are done.
+### Step 1 · Turn on two settings
 
-### 5. Use it
+Skills will not run without these, and this is the most common reason an
+install "does nothing".
 
-Give the skill the task **in the same message**. Invoking bare just loads the
-persona and it will ask you what you want.
+1. Open Claude (browser or app).
+2. Click your **name or profile picture**, usually bottom-left.
+3. Click **Settings**.
+4. Find **Capabilities**.
+5. Switch on **Code execution** and **File creation**.
 
-```
-/product-manager Turn this vague feature request into a delivery-ready ticket.
-```
+> Cannot find **Capabilities**? Look for a **Features** or **Beta features**
+> section instead — the label has moved between versions. You are looking for
+> two switches with those names.
 
-**Prefer the CLI?** The same thing from a shell, outside a session:
+### Step 2 · Download the skills you want
+
+Each skill is one small file. **Click a link below and it downloads.** Nothing
+opens, nothing installs — a file lands in your Downloads folder.
+
+**Suggested starting set for designers** — click all five:
+
+| Skill | What it does |
+|---|---|
+| [product-designer.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-designer.zip) | UX, UI, flows, interaction design, design QA |
+| [content-designer.zip](https://github.com/afovea/product-team-skills/raw/main/download/content-designer.zip) | Wording, labels, error messages, onboarding copy |
+| [accessibility-specialist.zip](https://github.com/afovea/product-team-skills/raw/main/download/accessibility-specialist.zip) | WCAG review, inclusive design, contrast, screen readers |
+| [ux-researcher.zip](https://github.com/afovea/product-team-skills/raw/main/download/ux-researcher.zip) | Research planning, interviews, synthesis |
+| [product-manager.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-manager.zip) | Scope, priorities, outcomes, PRDs, tickets |
+
+<details>
+<summary><b>All 27 skills — click to see the full list</b></summary>
+
+**Product and strategy**
+[product-manager](https://github.com/afovea/product-team-skills/raw/main/download/product-manager.zip) ·
+[product-strategist](https://github.com/afovea/product-team-skills/raw/main/download/product-strategist.zip) ·
+[growth-product-marketing-manager](https://github.com/afovea/product-team-skills/raw/main/download/growth-product-marketing-manager.zip) ·
+[pricing-strategist](https://github.com/afovea/product-team-skills/raw/main/download/pricing-strategist.zip)
+
+**Research, insight and data**
+[ux-researcher](https://github.com/afovea/product-team-skills/raw/main/download/ux-researcher.zip) ·
+[data-analyst](https://github.com/afovea/product-team-skills/raw/main/download/data-analyst.zip) ·
+[customer-success](https://github.com/afovea/product-team-skills/raw/main/download/customer-success.zip) ·
+[storm-researcher](https://github.com/afovea/product-team-skills/raw/main/download/storm-researcher.zip)
+
+**Design and experience**
+[product-designer](https://github.com/afovea/product-team-skills/raw/main/download/product-designer.zip) ·
+[content-designer](https://github.com/afovea/product-team-skills/raw/main/download/content-designer.zip) ·
+[design-systems-specialist](https://github.com/afovea/product-team-skills/raw/main/download/design-systems-specialist.zip) ·
+[motion-designer](https://github.com/afovea/product-team-skills/raw/main/download/motion-designer.zip) ·
+[accessibility-specialist](https://github.com/afovea/product-team-skills/raw/main/download/accessibility-specialist.zip)
+
+**Engineering, delivery and quality**
+[software-engineer](https://github.com/afovea/product-team-skills/raw/main/download/software-engineer.zip) ·
+[technical-architect](https://github.com/afovea/product-team-skills/raw/main/download/technical-architect.zip) ·
+[devops-engineer](https://github.com/afovea/product-team-skills/raw/main/download/devops-engineer.zip) ·
+[security-specialist](https://github.com/afovea/product-team-skills/raw/main/download/security-specialist.zip) ·
+[qa-engineer](https://github.com/afovea/product-team-skills/raw/main/download/qa-engineer.zip) ·
+[delivery-manager](https://github.com/afovea/product-team-skills/raw/main/download/delivery-manager.zip)
+
+**Delivery pipeline** — these are for running coding tasks step by step. Skip
+them unless you write code.
+[run-pipeline](https://github.com/afovea/product-team-skills/raw/main/download/run-pipeline.zip) ·
+[requirements-generator](https://github.com/afovea/product-team-skills/raw/main/download/requirements-generator.zip) ·
+[shape-task](https://github.com/afovea/product-team-skills/raw/main/download/shape-task.zip) ·
+[execute-chunk](https://github.com/afovea/product-team-skills/raw/main/download/execute-chunk.zip) ·
+[close-chunk](https://github.com/afovea/product-team-skills/raw/main/download/close-chunk.zip) ·
+[cleanup-verify](https://github.com/afovea/product-team-skills/raw/main/download/cleanup-verify.zip) ·
+[diagnose](https://github.com/afovea/product-team-skills/raw/main/download/diagnose.zip) ·
+[design-critique](https://github.com/afovea/product-team-skills/raw/main/download/design-critique.zip)
+
+</details>
+
+> **Do not unzip these files.** Claude wants the `.zip` exactly as downloaded.
+> If your Mac unzipped it automatically, see
+> [My Mac unzipped the file automatically](#my-mac-unzipped-the-file-automatically).
+
+### Step 3 · Upload them into Claude
+
+Once per skill. It takes about fifteen seconds each.
+
+1. Click **Customize** in the left-hand sidebar.
+   *In a browser you may need to go to **Settings → Capabilities → Skills**
+   instead — both lead to the same place.*
+2. Click **Skills**.
+3. Click the **+** button.
+4. Choose the option to **upload** or **create** a skill.
+5. Pick one of the `.zip` files you downloaded.
+6. Claude reads it and shows you the skill's name and description.
+7. Make sure the toggle next to it is **on**.
+
+Repeat for each file you downloaded.
+
+### Step 4 · Check it worked
+
+In your Skills list you should now see the skills you uploaded, each switched
+**on**. That is the install finished.
+
+### Step 5 · Use it
+
+Start a new chat and **say which expert you want**, in ordinary words:
+
+> As a product designer, our reports page is blank for new users. Design the
+> empty state.
+
+> Acting as an accessibility specialist, this chart uses colour alone to tell
+> four lines apart. Is that a problem?
+
+> As a content designer, rewrite this error message: "Error 4012: request
+> failed."
+
+You do not type slashes or commands. Naming the role in your sentence is what
+brings that expert in.
+
+**Give it the actual task in the same message.** "As a product designer, help
+me" gets you a question back. "As a product designer, design the empty state
+for our reports page" gets you the work.
+
+---
+
+## Part 3 — how to tell it is really working
+
+Ask the same question twice: once plainly, once naming a role.
+
+> Our onboarding has a 40% drop-off. What should we do?
+
+> **As a UX researcher**, our onboarding has a 40% drop-off. What should we do?
+
+The second answer should look different — it should talk about how to *find
+out* why people drop off (what to measure, who to talk to, what to ask) rather
+than jumping to fixes. That difference is the skill doing its job.
+
+---
+
+## Part 4 — good to know
+
+**Where your skills live.** Uploaded skills are attached to your Claude account,
+private to you, and available in both the browser and the app. Uploading in one
+place makes them available in the other.
+
+**Claude picks the expert.** In the browser and the app's chat, Claude reads
+your message and chooses. Naming the role steers it. If it picks the wrong one,
+say so plainly — "answer this as a content designer, not a product manager".
+
+**Upload only what you need.** Every uploaded skill is one more thing for Claude
+to choose between, and choosing gets less accurate as the list grows. Five
+skills you use beats 27 you do not.
+
+**Updating a skill.** Download the file again and upload it the same way. If
+Claude does not offer to replace the old one, delete the old one first.
+
+**Removing a skill.** Customize → Skills → the skill → remove or switch it off.
+
+---
+
+## Part 5 — if you use the Code tab
+
+Only for the **Code** tab in the Claude desktop app. This route installs all 27
+skills at once, and there is still no terminal — you type into the same box you
+normally chat in.
+
+1. Open the Claude app and click the **Code** tab.
+2. You will be asked to pick a folder to work in. Choose any project folder.
+   If you do not have one, make a new empty folder anywhere and pick that.
+3. Click into the message box and type this, then press Enter:
+
+   ```
+   /plugin marketplace add afovea/product-team-skills
+   ```
+
+   Wait for `Successfully added marketplace`.
+
+4. Type this, then press Enter:
+
+   ```
+   /plugin install product-team
+   ```
+
+5. Read what Claude says back:
+   - `Plugin is now active.` — finished.
+   - `Run /reload-plugins to activate.` — type `/reload-plugins` and press
+     Enter. If it warns you about re-reading the conversation, type
+     `/reload-plugins --force`.
+
+6. **Check it worked:** type `/product-` in the message box. A list of the roles
+   should appear as you type. Pick one, add your task on the same line, press
+   Enter:
+
+   ```
+   /product-manager Turn this vague feature request into a delivery-ready ticket.
+   ```
+
+Here you invoke roles with a `/` and Claude never picks one on its own — the
+opposite of the browser, and deliberate. Automatic picking chose badly in
+testing: "payments integration" pulled the pricing expert, "release risk"
+pulled the delivery manager.
+
+> **Careful with the names.** The thing you add is called
+> `afovea/product-team-skills`, but the thing you install is called
+> `product-team`. They are different on purpose. Copy the two lines above
+> exactly and you will not hit it.
+
+---
+
+## Part 6 — terminal instructions (only if you need them)
+
+**Skip this unless [Part 2](#part-2--install-5-minutes-no-terminal) or
+[Part 5](#part-5--if-you-use-the-code-tab) did not work for you.** Nothing here
+gives you anything extra unless you write code and want the routing brain, which
+picks the right expert for you automatically inside a code project.
+
+A terminal is an app where you type instructions instead of clicking. Everything
+below is copy and paste — you do not need to understand the commands.
+
+### Opening a terminal
+
+- **Mac** — press `Cmd + Space`, type `Terminal`, press Enter.
+- **Windows** — press the Start button, type `Terminal`, press Enter.
+- **Linux** — press `Ctrl + Alt + T`.
+
+A window opens with a blinking cursor. You type a line and press Enter. It runs.
+
+### The commands
+
+Copy these **one line at a time**. Paste the first line, press Enter, wait until
+the cursor comes back, then do the next.
 
 ```bash
-claude plugin marketplace add afovea/product-team-skills
-claude plugin install product-team
+cd ~/Downloads
 ```
 
-Shell installs never apply to a session that is already open. Start a new
-session, or run `/reload-plugins` in the open one.
-
----
-
-## Route B — Claude Code Desktop app
-
-Use this when you are on the **Code** tab of the Claude desktop app. You do not
-need a terminal and you do not need the `claude` CLI.
-
-1. Click the **+** button next to the prompt box.
-2. Choose **Plugins** → **Add plugin**. The plugin browser opens.
-3. If `product-team` is not listed, add the marketplace first: type
-   `/plugin marketplace add afovea/product-team-skills` into the prompt box,
-   then reopen the browser.
-4. Select **product-team**, choose a scope (**User** installs it everywhere —
-   pick this if unsure), and install.
-5. Verify: **+** → **Plugins** should now list `product-team` and its skills.
-
-Then use it exactly as in [Route A step 5](#5-use-it).
-
-> **Two limits worth knowing.** The plugin browser is not available in cloud
-> sessions, and plugins installed here do not carry into cloud sessions — see
-> [Route C](#route-c--claude-code-cloud-and-web-sessions). Plugins are also not
-> available in WSL sessions; on Windows use the desktop app's own sessions, or
-> [Route E](#route-e--filesystem-install-installsh).
-
----
-
-## Route C — Claude Code cloud and web sessions
-
-Cloud sessions (claude.ai/code, GitHub Actions, remote environments) do not
-read your machine. They clone the repository and read **its** configuration —
-so the install has to be committed to the repo you are working in.
-
-Create or edit `.claude/settings.json` **in that repository** and commit it:
-
-```json
-{
-  "extraKnownMarketplaces": {
-    "productteam-skills": {
-      "source": {
-        "source": "github",
-        "repo": "afovea/product-team-skills"
-      }
-    }
-  },
-  "enabledPlugins": {
-    "product-team@productteam-skills": true
-  }
-}
-```
-
-If the file already exists, merge these two keys into it rather than replacing
-the file.
-
-Commit and push. The plugin installs at session start for everyone who opens a
-cloud session on that repo — no per-person setup.
-
-> If your `.gitignore` contains `.claude/`, this file will not be committed and
-> nothing will happen. Add an exception: `!.claude/settings.json`. A previous
-> run of `install.sh` may have added that `.claude/` line for you.
-
-**Verify:** start a cloud session and type `/product-` in the prompt. The role
-skills should appear.
-
----
-
-## Route D — Claude apps (Chat and Cowork)
-
-This is the **Chat** tab of the desktop app, claude.ai in a browser, and Cowork
-sessions. It is a different product from Claude Code: it does not read this
-repository, does not use plugins, and does not use marketplaces. Skills are
-uploaded one at a time as ZIP files.
-
-### 1. Turn the prerequisites on
-
-In **Settings → Capabilities**, enable **Code execution** and **File creation**.
-Skills do not run without them.
-
-### 2. Build the ZIPs
-
-Clone the repo and run the packager:
+That means "work inside my Downloads folder". `~` is shorthand for your home
+folder. You do not have to be in any particular folder before you start — this
+line puts you somewhere known.
 
 ```bash
 git clone https://github.com/afovea/product-team-skills.git
-cd product-team-skills
-./scripts/package-skills.sh
 ```
 
-This writes one upload-ready ZIP per skill into `dist/`.
+That copies this project onto your computer, into a new folder called
+`product-team-skills` inside Downloads.
 
-Nothing to clone from? `./scripts/package-skills.sh product-manager product-designer`
-packages just those two.
-
-### 3. Upload the ones you want
-
-Open **Customize** in the desktop app sidebar (or the skills settings on
-claude.ai) → **Skills** → **+** → upload a ZIP → toggle the skill on.
-
-**Upload only the roles you will use.** There are 27 ZIPs and the uploader takes
-one at a time, so uploading everything is a twenty-minute job for skills you may
-never invoke. Three or four roles is a sensible start.
-
-### 4. What does not travel
-
-- **The routing brain** (`routing.md`) needs a `CLAUDE.md`, which these products
-  do not read. Roles work; automatic role selection does not.
-- **The gate-enforcement hook** is a Claude Code feature. The pipeline skills
-  still run and still report a failing gate — nothing can *stop* the turn.
-
-Uploaded skills sync between claude.ai and the desktop app's Chat tab, and are
-private to your account.
-
----
-
-## Route E — filesystem install (`install.sh`)
-
-Use this when you want the skills **plus the routing brain** in a specific
-project, or when plugins are unavailable (WSL, an offline machine, a
-non-Claude-Code host that reads `SKILL.md`).
+> `git: command not found`? Git is not installed. On a Mac, typing that line
+> usually prompts you to install it — say yes and run the line again. On
+> Windows, install [Git for Windows](https://git-scm.com/downloads/win), close
+> the terminal, open a new one, and start again.
 
 ```bash
-git clone https://github.com/afovea/product-team-skills.git
 cd product-team-skills
-./install.sh --verify                    # what is installed right now?
-./install.sh /path/to/your-project       # into one project
 ```
 
-Running `./install.sh` with no arguments prints this menu rather than doing
-anything — it will not guess a target.
+That moves you inside the folder you just downloaded.
 
-| Command | Result |
-|---|---|
-| `./install.sh /path/to/project` | Skills in `<project>/.claude/skills/`, routing brain appended to its `CLAUDE.md`, `.gitignore` and pipeline adapter seeded |
-| `./install.sh .` | The same, into the current directory |
-| `./install.sh --personal` | Skills in `~/.claude/skills/` — available in every project. Skills only, no routing brain |
-| `./install.sh --submodule /path/to/project` | Per-project, pinned to a tag, symlinked so discovery still works |
-| `./install.sh --verify` | Reports every place the suite is installed, and flags conflicts |
+```bash
+./install.sh --personal
+```
 
-Re-running is safe. The routing block is replaced in place between its markers,
-anything you wrote above it is left alone, and an existing pipeline adapter is
-never overwritten.
+That installs all 27 skills so they are available in every project you open with
+Claude Code.
 
-**Verify:** `./install.sh --verify`, then start Claude Code in that project and
-type `/product-`.
+```bash
+./install.sh --verify
+```
 
-### Windows
+That prints a report of what is installed where. Read the **Verdict** at the
+bottom.
 
-`install.sh` is a bash script. On Windows use [Route B](#route-b--claude-code-desktop-app)
-(the desktop app), or run the script from Git Bash or WSL. Note that plugins do
-not load in WSL sessions, so inside WSL the filesystem install is the working
-route.
+### Other things the installer can do
 
----
+Run `./install.sh --help` to see them all. The one worth knowing:
 
-## Did it work? One check per route
+```bash
+./install.sh /path/to/your-project
+```
 
-| Route | Check | Healthy answer |
-|---|---|---|
-| A, B | `/plugin list` | `product-team@productteam-skills` · `enabled` |
-| A, B | `claude plugin details product-team` | `Skills (27)` |
-| C | Start a cloud session, type `/product-` | Role skills autocomplete |
-| D | Customize → Skills | Your uploaded skills, toggled on |
-| E | `./install.sh --verify` | Reports the install and no conflicts |
+Installs into one specific project **and** adds the routing brain to it, so
+Claude picks the right expert without you naming one. This is the only route
+that includes the routing brain, because it lives in a per-project file.
 
-In every route the real proof is the same: type `/` and start typing
-`product-`. If the roles autocomplete, you are installed.
+To get the path of a folder: on a Mac, drag the folder onto the terminal window
+and its path appears. On Windows, right-click the folder and choose **Copy as
+path**.
 
 ---
 
-## Troubleshooting
+## Something went wrong
 
-Matched against the exact message you get.
+### I uploaded a skill and nothing is different
 
-### `Plugin "product-team" not found in marketplace "product-team-skills"`
+Work through these in order:
 
-You used the repo name where the marketplace name goes. The marketplace is
-`productteam-skills`, with no hyphen after `product`. Use
-`/plugin install product-team` and skip the suffix entirely.
+1. **Are Code execution and File creation switched on?** [Step 1](#step-1--turn-on-two-settings).
+   This is the most common cause. Switch them on and start a **new** chat.
+2. **Is the skill toggled on?** Customize → Skills. Uploading does not always
+   switch it on.
+3. **Are you in a chat that started before you installed?** Start a new one.
+4. **Did you name the role in your message?** In the browser and app chat,
+   Claude chooses the expert from what you wrote. "As a product designer, …"
 
-### `Marketplace "productteam-skills" not found`
+### The upload was rejected, or Claude says the file is invalid
 
-The marketplace was never added, or was removed. Run
-`/plugin marketplace add afovea/product-team-skills` first.
+Almost always an unzipped or re-zipped file. Claude needs the `.zip` exactly as
+downloaded — see below.
+
+### My Mac unzipped the file automatically
+
+Safari does this by default, leaving you a folder instead of a `.zip`.
+
+- **Quickest fix:** right-click the folder → **Compress**. That makes a fresh
+  `.zip` with the folder inside it, which is the shape Claude wants.
+- **Permanent fix:** Safari → Settings → General → untick **Open "safe" files
+  after downloading**. Then download again.
+- Or use Chrome or Firefox, which do not unzip downloads.
+
+### I clicked a download link and got a page of text instead of a file
+
+You clicked a link to the readable version rather than the file. Go back and use
+the links in [Step 2](#step-2--download-the-skills-you-want) — those download
+directly.
+
+### I cannot find Customize, or Skills, or Capabilities
+
+Menu names move between versions. Try, in order: **Customize** in the sidebar ·
+**Settings → Capabilities** · **Settings → Features** · your profile picture →
+**Settings**. You are looking for a page listing skills with on/off switches.
+
+If none of them exist, your Claude plan may not include skills. Check
+[Anthropic's help centre](https://support.claude.com/en/articles/12512180-use-skills-in-claude).
+
+### Claude keeps picking the wrong expert
+
+Say which one you want, plainly: "Answer this as an accessibility specialist,
+not a product designer." If it keeps happening, you probably have too many
+skills uploaded — remove the ones you do not use.
 
 ### `command not found: claude`
 
-You are not in a Claude Code terminal. Either you are in the Chat tab or on
-claude.ai ([Route D](#route-d--claude-apps-chat-and-cowork)), or Claude Code is
-not installed on this machine. The desktop app does **not** put `claude` on your
-PATH — use [Route B](#route-b--claude-code-desktop-app) instead.
+You typed a terminal command somewhere that is not a terminal, or Claude Code is
+not installed on this computer. The Claude desktop app does not give you a
+`claude` command. If you were following Part 5, everything there is typed into
+Claude's own message box, not a terminal.
 
-### `/plugin` is not recognised, or "unknown command"
+### Nothing here matches
 
-Either your Claude Code is too old — check `claude --version`, then
-`npm install -g @anthropic-ai/claude-code@latest` and restart — or you are not
-in Claude Code at all (see the row above).
-
-### Install said it succeeded, but `/product-manager` is not there
-
-In order:
-
-1. Did you skip the activation step? Run `/reload-plugins`, then
-   `/reload-plugins --force` if it warns.
-2. Was it a shell install (`claude plugin install`) into an already-open
-   session? Those never apply to the running session. Start a new one.
-3. Still missing — clear the plugin cache and reinstall:
-   ```bash
-   rm -rf ~/.claude/plugins/cache
-   claude plugin install product-team
-   ```
-   Then restart Claude Code.
-
-### The skills are there but nothing routes automatically
-
-Working as designed. Every skill sets `disable-model-invocation: true`, so
-describing a problem in prose will not summon a role. Invoke it by name, or
-install the routing brain with [Route E](#route-e--filesystem-install-installsh)
-— it is a `CLAUDE.md` convention and only the filesystem route can add it.
-
-### A skill answers, but ignores what I asked
-
-You invoked it bare. `/product-designer` on its own loads the persona with no
-brief. Put the task in the same message.
-
-### `/product-manager` runs an older copy than the one I updated
-
-You have the suite installed twice. Filesystem skills and plugin skills live in
-different namespaces: a personal or project skill named `product-manager` claims
-the bare `/product-manager`, while the plugin copy stays reachable as
-`/product-team:product-manager`. Both work — you are just editing one and
-running the other.
-
-Run `./install.sh --verify` to see every copy, then keep one.
-
-### Marketplace is stale — a new skill is missing
-
-Third-party marketplaces have auto-update **off** by default:
-
-```
-/plugin marketplace update productteam-skills
-/plugin install product-team
-```
-
-### `.claude/skills/pipeline/` exists and pipeline skills appear twice
-
-Left over from a v2.x install, where the pipeline skills were nested one level
-deeper. Delete it:
-
-```bash
-rm -r ~/.claude/skills/pipeline            # personal install
-rm -r <project>/.claude/skills/pipeline    # project install
-```
-
-### Every turn ends with a Python error
-
-The gate-enforcement `Stop` hook needs `python3` on your PATH. It only wakes up
-when a pipeline run is open, so this appears once you start using
-`/run-pipeline`. Install Python 3, or disable the hook with
-`claude plugin disable product-team`.
+Open an issue at
+[github.com/afovea/product-team-skills/issues](https://github.com/afovea/product-team-skills/issues).
+Say which Claude you are using (browser, app chat, app Code tab, terminal), what
+you clicked, and what you saw. Screenshots help.
 
 ---
 
-## Uninstall / start clean
+## For developers
 
-```bash
-claude plugin uninstall product-team              # plugin install
-claude plugin marketplace remove productteam-skills   # and its marketplace
-```
+The plugin, cloud sessions, submodules, gate enforcement and the routing brain
+are covered in the [README](./README.md). The short version:
 
-Filesystem installs are removed by deleting the directories — `./install.sh --verify`
-prints the exact paths in use.
+| Route | Command | Adds |
+|---|---|---|
+| Plugin | `/plugin install product-team` | 27 skills + the gate-enforcement hook |
+| Cloud sessions | `enabledPlugins` in the repo's `.claude/settings.json` | the same, for everyone on that repo |
+| Project | `./install.sh /path/to/project` | 27 skills + the routing brain |
+| Personal | `./install.sh --personal` | 27 skills, every project |
+| Submodule | `./install.sh --submodule /path` | pinned to a tag, symlinked |
 
-For cloud sessions, remove the two keys from the repository's
-`.claude/settings.json`.
+`./install.sh --verify` reports every install it can find and flags conflicts.
 
----
-
-## What each route actually gives you
-
-| | Skills | Routing brain | Gate hook | Updates with |
-|---|---|---|---|---|
-| **A / B** plugin | ✅ all 27 | ❌ | ✅ | `claude plugin update product-team` |
-| **C** cloud | ✅ all 27 | ❌ | ✅ | commit a new pin |
-| **D** Claude apps | ✅ ones you upload | ❌ | ❌ | re-upload |
-| **E** project | ✅ all 27 | ✅ | ❌ | re-run `install.sh` |
-| **E** submodule | ✅ all 27 | ✅ | ❌ | bump the submodule |
-
-Routes stack. Plugin **plus** a per-project `install.sh` run is a reasonable
-combination — you get the gate hook from the plugin and the routing brain from
-the project. Just do not install the same skills at two *filesystem* levels; see
-the duplicate-copy entry in [Troubleshooting](#troubleshooting).
+The ZIPs under `download/` are built by `scripts/package-skills.sh` and checked
+by CI on every push, so they cannot drift from `skills/`. They differ from the
+source in one way: `disable-model-invocation: true` is stripped, because the
+Claude apps have no `/name` invocation and would otherwise ship skills that can
+never fire.

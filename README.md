@@ -8,7 +8,24 @@ Every role is project-agnostic, so the same suite works on any codebase without 
 
 ## Quick start
 
-**In Claude Code**, type these two lines:
+**Using Claude in a browser, or the Claude app for chat?** No terminal, no code.
+Download a skill, upload it into Claude:
+
+1. Claude → **Settings → Capabilities** → switch on **Code execution** and
+   **File creation**.
+2. Download a skill — say
+   [product-designer.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-designer.zip)
+   or [product-manager.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-manager.zip).
+   All 27 are in [`download/`](./download).
+3. Claude → **Customize → Skills → +** → upload the file → switch it on.
+4. Ask for what you want, naming the role: *"As a product designer, our reports
+   page is blank for new users. Design the empty state."*
+
+**➡️ [Full step-by-step guide, written for non-technical users](./INSTALL.md)** —
+where to click, what you should see, and what to do when it does not work.
+
+<details>
+<summary><b>Using Claude Code instead? Two lines.</b></summary>
 
 ```
 /plugin marketplace add afovea/product-team-skills
@@ -16,33 +33,19 @@ Every role is project-agnostic, so the same suite works on any codebase without 
 ```
 
 If the install summary says `Run /reload-plugins to activate.`, run that too.
-Then check it worked — type `/product-` and the roles should autocomplete:
+Then type `/product-` — the roles should autocomplete:
 
 ```
 /product-manager Turn this vague feature request into a delivery-ready ticket.
 ```
 
-That is the whole install for the Claude Code terminal and the desktop app's
-**Code** tab.
+Works in the terminal and in the desktop app's **Code** tab, and installs all 27
+at once plus the gate-enforcement hook.
 
-> **Not in a Claude Code terminal?** The Claude desktop app's **Chat** tab,
-> claude.ai, cloud sessions and WSL each install differently — one page,
-> one section each, in **[INSTALL.md](./INSTALL.md)**. Start there if anything
-> below throws an error.
-
-<details>
-<summary><b>Three names that look alike — the usual cause of a failed install</b></summary>
-
-| Thing | Value |
-|---|---|
-| GitHub repo | `afovea/product-team-skills` |
-| Marketplace | `productteam-skills` — **no hyphen after `product`** |
-| Plugin | `product-team` |
-
-`/plugin install product-team@product-team-skills` — the natural guess — fails
-with `Plugin "product-team" not found in marketplace "product-team-skills"`.
-Dropping the `@marketplace` suffix entirely, as in the Quick start above,
-avoids the problem.
+The three names differ on purpose — repo `product-team-skills`, marketplace
+`productteam-skills`, plugin `product-team`. Copying the two lines above avoids
+the mismatch; `/plugin install product-team@product-team-skills` fails with
+`Plugin "product-team" not found in marketplace "product-team-skills"`.
 
 </details>
 
@@ -50,7 +53,26 @@ avoids the problem.
 
 ## Invoking a skill
 
-Type `/` then the skill name, **and give it the task in the same message.** Invoking bare loads the persona with no brief, and it will just ask you what you want.
+**Whichever route you installed by, give the role the actual task in the same
+message.** Summoning a role with nothing to do gets you a question back, not the
+work.
+
+### In a browser or the app's chat
+
+Name the role in ordinary words. Claude picks the skill from what you wrote.
+
+```
+As a product designer, our reports page is blank for new users. Design the empty state.
+Acting as an accessibility specialist, this chart uses colour alone for four series. Problem?
+As a content designer, rewrite this error: "Error 4012: request failed."
+```
+
+If Claude picks the wrong expert, say so — "answer this as a content designer,
+not a product manager". Uploading fewer skills makes it pick better.
+
+### In Claude Code
+
+Type `/` then the skill name.
 
 ```
 /product-designer Our reports page is blank for new users. Design the empty state.
@@ -66,14 +88,20 @@ Two forms both work:
 | `/product-designer` | Normal use — shortest form |
 | `/product-team:product-designer` | Unambiguous. Needed only if a personal or project skill shares the name |
 
-### They do not fire on their own
+### Automatic selection differs by host, on purpose
 
-Every skill sets `disable-model-invocation: true`. Describing a design problem in prose will **not** auto-summon `/product-designer`. That is deliberate: automatic invocation selects by description keyword-matching, and testing showed that picks badly — "payments integration" pulled the Pricing Strategist, "release risk" pulled the Delivery Manager.
+In Claude Code every skill sets `disable-model-invocation: true`, so describing a
+design problem in prose will **not** auto-summon `/product-designer`. That is
+deliberate: automatic invocation selects by description keyword-matching, and
+testing showed that picks badly — "payments integration" pulled the Pricing
+Strategist, "release risk" pulled the Delivery Manager. You get selection
+explicitly with `/name`, or via [the routing brain](#the-routing-brain-optional-second-layer)
+when you don't know which discipline you want.
 
-You get selection two ways instead:
-
-- **Explicitly**, with `/name` — when you know which discipline you want.
-- **Via the routing brain**, by asking in plain prose — when you don't. See [The routing brain](#the-routing-brain-optional-second-layer).
+The Claude apps have no `/name` invocation at all, so Claude choosing is the only
+mechanism there. The ZIPs under [`download/`](./download) therefore ship with
+that line stripped — keeping it would package skills that could never fire.
+Naming the role in your sentence is how you steer the choice.
 
 ### Once invoked, a skill stays loaded
 
@@ -149,7 +177,7 @@ exact error text. The summary:
 | **Per project** | `install.sh /path/to/project` | Skills in `<project>/.claude/skills/` **plus** the routing brain in its `CLAUDE.md` |
 | **Personal** | `install.sh --personal` | Skills in `~/.claude/skills/` — every project. Skills only |
 | **Submodule** | `install.sh --submodule /path/to/project` | Per-project, pinned to a tag, symlinked so discovery still works |
-| **Claude apps** | `scripts/package-skills.sh` → upload ZIPs | The roles you upload, in claude.ai and the Chat tab. No routing brain, no hook |
+| **Claude apps** *(no terminal)* | download a ZIP from [`download/`](./download), upload it | The roles you upload, in claude.ai and the Chat tab. No routing brain, no hook |
 
 The script is in the repo, so clone first for those routes:
 
@@ -167,7 +195,7 @@ It copies the skills, appends the routing brain to `CLAUDE.md` **with the paths 
 - **Just want the skills?** Plugin — terminal, desktop app, or a committed `.claude/settings.json` for cloud sessions.
 - **Want role arbitration too?** Plugin *plus* a per-project install — they stack. Only the per-project route can add `routing.md`, because `CLAUDE.md` is a per-project file.
 - **Want it pinned and tracked in the consuming repo?** Submodule.
-- **On claude.ai or the desktop app's Chat tab?** Those are a different product from Claude Code — ZIP upload, [INSTALL.md Route D](./INSTALL.md#route-d--claude-apps-chat-and-cowork).
+- **On claude.ai or the desktop app's Chat tab?** Those are a different product from Claude Code — download a ZIP from [`download/`](./download) and upload it, per [INSTALL.md](./INSTALL.md#part-2--install-5-minutes-no-terminal).
 
 **The repo is the source, not an installation.** Cloning it makes the skills visible nowhere. Claude Code discovers them at `~/.claude/skills/<name>/SKILL.md` or `<project>/.claude/skills/<name>/SKILL.md`, or from an installed plugin. Pick a route above, or you will not see them.
 
@@ -368,9 +396,12 @@ product-team-skills/
 ├── hooks/                            # deterministic enforcement
 │   ├── hooks.json                    # registers the Stop hook
 │   └── gate-stop.py                  # blocks the turn on a failing gate
+├── download/                         # one upload-ready ZIP per skill, committed
+│   ├── product-designer.zip          #   so non-technical users can install
+│   └── ...                           #   without a terminal. CI keeps it in sync
 ├── scripts/
 │   ├── gate-chain.py                 # standalone gate chain runner
-│   └── package-skills.sh             # builds upload ZIPs for the Claude apps
+│   └── package-skills.sh             # rebuilds download/
 ├── reference/                        # shared docs, deliberately not skills
 │   ├── project-adapter.md
 │   └── state-schema.md

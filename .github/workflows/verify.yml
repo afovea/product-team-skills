@@ -1,0 +1,107 @@
+name: verify
+
+# The ZIPs under download/ are what a non-technical user installs — they click a
+# link on GitHub rather than running anything. That only stays safe if the
+# committed ZIPs match the skills, so this rebuilds them and fails on any
+# difference. It is the check that stops the designer-facing download silently
+# going stale after someone edits a SKILL.md.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shell scripts parse
+        run: |
+          bash -n install.sh
+          bash -n scripts/package-skills.sh
+
+      - name: Python scripts compile
+        run: |
+          python3 -m py_compile scripts/gate-chain.py hooks/gate-stop.py
+
+      - name: Manifests are valid JSON
+        run: |
+          for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json hooks/hooks.json; do
+            python3 -m json.tool "$f" > /dev/null || { echo "invalid JSON: $f"; exit 1; }
+          done
+
+      - name: Every skill has the frontmatter the standard requires
+        run: |
+          fail=0
+          for f in skills/*/SKILL.md; do
+            fm=$(awk '/^---$/{n++; next} n==1' "$f")
+            for key in name description; do
+              echo "$fm" | grep -q "^$key:" || { echo "$f: missing '$key'"; fail=1; }
+            done
+            # The directory name is what a user types, so it has to match `name`.
+            want=$(basename "$(dirname "$f")")
+            got=$(echo "$fm" | sed -n 's/^name:[[:space:]]*//p')
+            [ "$want" = "$got" ] || { echo "$f: name '$got' != directory '$want'"; fail=1; }
+          done
+          exit $fail
+
+      - name: Downloadable ZIPs match the skills
+        run: |
+          sudo apt-get install -y --no-install-recommends zip > /dev/null
+          ./scripts/package-skills.sh > /dev/null
+          if ! git diff --quiet -- download/; then
+            echo "::error::download/ is out of date with skills/."
+            echo "Run ./scripts/package-skills.sh and commit the result."
+            git diff --stat -- download/
+            exit 1
+          fi
+          echo "download/ is in sync ($(ls download/*.zip | wc -l) skills)"
+
+      - name: Packaged ZIPs are shaped the way the uploader needs
+        run: |
+          fail=0
+          for z in download/*.zip; do
+            n=$(basename "$z" .zip)
+            # Must contain an enclosing folder; a bare SKILL.md is rejected.
+            unzip -l "$z" | grep -q " $n/SKILL.md$" || { echo "$z: no $n/SKILL.md"; fail=1; }
+            # Must not carry the Claude Code-only flag, which would stop the
+            # skill ever firing in the Claude apps.
+            unzip -p "$z" "$n/SKILL.md" | awk '/^---$/{c++; next} c==1' \
+              | grep -q '^disable-model-invocation:' \
+              && { echo "$z: still carries disable-model-invocation"; fail=1; }
+          done
+          exit $fail
+
+      - name: install.sh guard rails reject bad input
+        run: |
+          fail=0
+          check() { # description, expected-exit, command...
+            d="$1"; want="$2"; shift 2
+            "$@" > /dev/null 2>&1; got=$?
+            [ "$got" -eq "$want" ] || { echo "$d: exit $got, wanted $want"; fail=1; }
+          }
+          check "bare run"              1 ./install.sh
+          check "target is the repo"    1 ./install.sh .
+          check "unknown option"        1 ./install.sh --nope
+          check "submodule, no path"    1 ./install.sh --submodule
+          check "missing directory"     1 ./install.sh /no/such/place
+          check "--help"                0 ./install.sh --help
+          check "--verify"              0 ./install.sh --verify
+          exit $fail
+
+      - name: A project install lands complete
+        run: |
+          mkdir -p /tmp/target
+          ./install.sh /tmp/target > /dev/null
+          want=$(ls -d skills/*/ | wc -l)
+          got=$(find /tmp/target/.claude/skills -maxdepth 2 -name SKILL.md | wc -l)
+          [ "$got" -eq "$want" ] || { echo "installed $got of $want skills"; exit 1; }
+          grep -q 'product-team-skills:start' /tmp/target/CLAUDE.md
+          [ -f /tmp/target/.claude/pipeline-adapter.md ]
+          # Re-running must not duplicate the routing block.
+          ./install.sh /tmp/target > /dev/null
+          [ "$(grep -c 'product-team-skills:start' /tmp/target/CLAUDE.md)" -eq 1 ]
+          echo "project install verified ($want skills)"

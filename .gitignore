@@ -12,5 +12,6 @@ evals/
 # Local Claude Code state. Machine-specific; never publish.
 .claude/
 
-# Skill ZIPs built by scripts/package-skills.sh for upload to the Claude apps.
-dist/
+# download/ is deliberately NOT ignored. Those ZIPs are the no-terminal install
+# route — people download them straight from GitHub — so they have to be in the
+# repo. CI rebuilds them and fails if they drift from skills/.
