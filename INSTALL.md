@@ -39,10 +39,15 @@ you to pick a folder when you started.
 commands, and you started it by typing `claude`.
 → **[Part 3](#part-3--claude-code-in-a-terminal)**
 
-**Claude for chatting.** Claude in a web browser with `claude.ai` in the address
-bar, or the desktop app on the **Chat** tab. There is a message box and your past
-conversations down the side.
+**Claude web.** A web browser with `claude.ai` in the address bar. A message box
+and your past conversations down the side.
 → **[Part 4](#part-4--claude-for-chatting-browser-or-chat-tab)**
+
+**Claude app, Chat tab.** The Claude app, on **Chat** rather than **Code**. Same
+product as Claude web, and your skills are shared between the two — install in
+one and it appears in the other.
+→ **[Part 4](#part-4--claude-for-chatting-browser-or-chat-tab)** *(the menus
+differ slightly; both are written out)*
 
 These instructions assume Claude is already installed and you are signed in.
 
@@ -280,19 +285,31 @@ for Claude Code and do much less in chat.
 
 ### Step 3 · Upload them
 
-About fifteen seconds each.
+About fifteen seconds each. **The menu differs between the browser and the app**
+— use your version:
+
+**If you are in Claude web** (a browser):
+
+1. **Settings** → **Capabilities** → **Skills**.
+2. Click **+**.
+
+**If you are in the Claude app** (Chat tab):
 
 1. Click **Customize** in the left sidebar.
-   *In a browser you may need **Settings → Capabilities → Skills** instead —
-   both go to the same place.*
 2. Click **Skills**.
 3. Click **+**.
-4. Choose the option to **upload** or **create** a skill.
-5. Pick one of the `.zip` files you downloaded.
-6. Claude reads it and shows the name and description.
-7. Make sure its toggle is **on**.
+
+**Then, in both:**
+
+1. Choose the option to **upload** or **create** a skill.
+2. Pick one of the `.zip` files you downloaded.
+3. Claude reads it and shows the name and description.
+4. Make sure its toggle is **on**.
 
 Repeat for each file.
+
+You only need to do this in one of the two. Uploads attach to your account, so
+what you add in the browser shows up in the app and the other way round.
 
 ### Step 4 · Check it worked
 

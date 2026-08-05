@@ -8,11 +8,54 @@ Every role is project-agnostic, so the same suite works on any codebase without 
 
 ## Quick start
 
-### In Claude Code — all 27 at once
+**Find your row, then read that section.** Which Claude you are in decides the
+method — they are not interchangeable, and using the wrong one is the single
+most common failed install.
 
-Type these two lines into Claude Code. Works the same in a terminal and in the
-desktop app's **Code** tab, where you type them into the ordinary message box —
-no terminal needed.
+| Where you are | Method | Section |
+|---|---|---|
+| **Claude web** — `claude.ai` in a browser, chatting | Upload each role | [A](#a--claude-web-claudeai-in-a-browser) |
+| **Claude app** — desktop app, **Chat** tab | Upload each role | [B](#b--claude-app-chat-tab) |
+| **Claude app** — desktop app, **Code** tab | Two typed lines, all 27 | [C](#c--claude-app-code-tab-claude-code) |
+| **Claude Code** — a terminal | Two typed lines, all 27 | [D](#d--claude-code-in-a-terminal) |
+| **Claude Code on the web** — `claude.ai/code`, cloud sessions | A committed settings file | [E](#e--claude-code-on-the-web-cloud-sessions) |
+
+---
+
+### A · Claude web (`claude.ai` in a browser)
+
+Chat, in a browser. Download the roles you want and upload them.
+
+1. **Settings → Capabilities** → switch on **Code execution** and **File
+   creation**. Skills do not run without both.
+2. Download a role — say
+   [product-designer.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-designer.zip)
+   or [product-manager.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-manager.zip).
+   All 27 are in [`download/`](./download). **Do not unzip them.**
+3. **Settings → Capabilities → Skills → +** → upload the file → switch it on.
+4. Ask for what you want, naming the role: *"As a product designer, our reports
+   page is blank for new users. Design the empty state."*
+
+Uploads attach to your account, so they appear in the app's Chat tab too — do
+this once, not twice.
+
+### B · Claude app, Chat tab
+
+Same product as A, same files, **different menu**. The app has a
+**Customize** entry that the browser does not.
+
+1. **Settings → Capabilities** → switch on **Code execution** and **File
+   creation**.
+2. Download the roles you want from [`download/`](./download).
+3. **Customize** in the left sidebar → **Skills** → **+** → upload → switch it on.
+4. Ask for what you want, naming the role.
+
+Already done it in the browser? Your skills are already here. Skip this.
+
+### C · Claude app, Code tab (Claude Code)
+
+Not chat — this is Claude Code inside the app. Installs all 27 at once, with no
+terminal: the two lines go into the ordinary message box.
 
 ```
 /plugin marketplace add afovea/product-team-skills
@@ -26,6 +69,21 @@ If it says `Run /reload-plugins to activate.`, run that too. Then type
 /product-manager Turn this vague feature request into a delivery-ready ticket.
 ```
 
+The app asks for a project folder before you can send anything. Pick any folder —
+the install goes onto your account, works in every folder afterwards, and writes
+nothing into the one you picked.
+
+### D · Claude Code in a terminal
+
+Identical to C. Run `claude` from any folder, then type the same two lines.
+
+```
+/plugin marketplace add afovea/product-team-skills
+/plugin install product-team
+```
+
+### For C and D
+
 You also get the delivery pipeline and the gate-enforcement hook. Add
 [the routing brain](#the-routing-brain-optional-second-layer) with
 `./install.sh --routing-only /path/to/project` and Claude picks the role for you.
@@ -35,23 +93,33 @@ You also get the delivery pipeline and the gate-enforcement hook. Add
 > `product-team`. `/plugin install product-team@product-team-skills` fails with
 > `Plugin "product-team" not found in marketplace "product-team-skills"`.
 
-### In Claude for chatting — browser or Chat tab
+### E · Claude Code on the web (cloud sessions)
 
-A different product with a different mechanism: download a role, upload it.
+Cloud sessions do not read your machine, and the plugin browser is unavailable
+there. Declare the plugin in the repository instead, and everyone who opens a
+cloud session on it gets the skills automatically.
 
-1. Claude → **Settings → Capabilities** → switch on **Code execution** and
-   **File creation**.
-2. Download a role — say
-   [product-designer.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-designer.zip)
-   or [product-manager.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-manager.zip).
-   All 27 are in [`download/`](./download).
-3. Claude → **Customize → Skills → +** → upload the file → switch it on.
-4. Ask for what you want, naming the role: *"As a product designer, our reports
-   page is blank for new users. Design the empty state."*
+Add this to `.claude/settings.json` **in that repository** and commit it:
 
-**➡️ [Step-by-step guide for both, written for non-technical users](./INSTALL.md)**
-— which Claude you have, where to click, what you should see, and what to do when
-it does not work.
+```json
+{
+  "extraKnownMarketplaces": {
+    "productteam-skills": {
+      "source": { "source": "github", "repo": "afovea/product-team-skills" }
+    }
+  },
+  "enabledPlugins": { "product-team@productteam-skills": true }
+}
+```
+
+Merge these keys into the file if it already exists. If `.gitignore` contains
+`.claude/`, add `!.claude/settings.json` or the file will never be committed.
+
+---
+
+**➡️ [Step-by-step guide for all of these, written for non-technical users](./INSTALL.md)**
+— how to tell which Claude you are in, where to click, what you should see, and
+what to do when it does not work.
 
 > **Installed from the old `ProductTeam-skills` repo?** It has moved here — see [Migrating](#migrating-from-the-old-repo).
 
