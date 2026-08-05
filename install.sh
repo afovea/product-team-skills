@@ -75,6 +75,9 @@ Usage:
     ./install.sh /path/to/project     Skills + routing brain into that project
     ./install.sh .                    The same, into the current directory
     ./install.sh --personal           Skills into ~/.claude/skills (every project)
+    ./install.sh --routing-only PATH  Routing brain only — for when you already
+                                      installed the plugin and just want Claude
+                                      to pick the right role for you
     ./install.sh --submodule PATH     Per-project, pinned to a tag, symlinked
     ./install.sh --verify             Report what is installed where
     ./install.sh --help               This message
@@ -91,6 +94,7 @@ while [[ $# -gt 0 ]]; do
     --submodule) MODE="submodule"; shift ;;
     --copy)      MODE="copy"; shift ;;
     --personal)  MODE="personal"; shift ;;
+    --routing-only) MODE="routing"; shift ;;
     --verify|--check) MODE="verify"; shift ;;
     -h|--help)   usage; exit 0 ;;
     -*)          echo "error: unknown option '$1'" >&2; echo >&2; usage >&2; exit 1 ;;
@@ -270,7 +274,13 @@ echo
 
 # ---------------------------------------------------------------- place files
 
-if [[ "$MODE" == "submodule" ]]; then
+if [[ "$MODE" == "routing" ]]; then
+  # Nothing to copy. The skills already exist — as an installed plugin — and
+  # copying them again would put a second set on disk that shadows the bare
+  # /name and then silently goes stale. This mode adds only the decision layer.
+  echo "  routing brain only — no skills copied"
+  SKILL_PREFIX=""
+elif [[ "$MODE" == "submodule" ]]; then
   require git "Submodule mode clones this suite into your project."
   git -C "$TARGET" rev-parse --git-dir >/dev/null 2>&1 || {
     echo "error: submodule mode needs '$TARGET' to be a git repository." >&2
@@ -312,7 +322,7 @@ else
   SKILL_PREFIX=".claude/skills"
 fi
 
-warn_stale_layout "$TARGET/.claude/skills"
+[[ "$MODE" == "routing" ]] || warn_stale_layout "$TARGET/.claude/skills"
 
 # ------------------------------------------------------- routing into CLAUDE.md
 
@@ -320,8 +330,20 @@ MARK_START="<!-- product-team-skills:start -->"
 MARK_END="<!-- product-team-skills:end -->"
 CLAUDE_MD="$TARGET/CLAUDE.md"
 
-# Rewrite the paths in routing.md to match where the files actually landed.
-ROUTING="$(sed -e "s#\`\.claude/skills/#\`$SKILL_PREFIX/#g" "$SUITE_ROOT/routing.md")"
+if [[ "$MODE" == "routing" ]]; then
+  # There are no skill files to point at — the skills come from the plugin. Turn
+  # the "Skill file" column into the invocation you actually type, so the routing
+  # table names something that exists.
+  ROUTING="$(sed \
+    -e 's#`\.claude/skills/\([a-z0-9-]*\)/SKILL\.md`#`/\1`#g' \
+    -e 's#| Skill file |#| Invoke |#g' \
+    -e 's#the relevant files under `\.claude/skills/`#the relevant skill by name, e.g. `/product-manager`#g' \
+    -e 's#place deeper role guidance in `\.claude/skills/`#leave the deeper role guidance in the installed skills#g' \
+    "$SUITE_ROOT/routing.md")"
+else
+  # Rewrite the paths in routing.md to match where the files actually landed.
+  ROUTING="$(sed -e "s#\`\.claude/skills/#\`$SKILL_PREFIX/#g" "$SUITE_ROOT/routing.md")"
+fi
 
 if [[ -f "$CLAUDE_MD" ]] && grep -qF "$MARK_START" "$CLAUDE_MD"; then
   # The routing text goes via a temp file, not stdin: stdin is already taken by
@@ -343,6 +365,23 @@ PY
 else
   { [[ -f "$CLAUDE_MD" ]] && printf '\n'; printf '%s\n%s\n%s\n' "$MARK_START" "$ROUTING" "$MARK_END"; } >> "$CLAUDE_MD"
   echo "  appended routing block to CLAUDE.md"
+fi
+
+# Routing-only touches nothing but CLAUDE.md — no skills on disk to ignore, no
+# pipeline adapter, because the pipeline skills come from the plugin.
+if [[ "$MODE" == "routing" ]]; then
+  echo
+  echo "Done. Confirm it worked:"
+  echo "  1. cd '$TARGET' && claude"
+  echo "  2. Describe a task in plain words, without naming a role:"
+  echo "       The error message when a payment fails is confusing. Rewrite it."
+  echo "     Claude should reach for the Content Designer."
+  echo
+  echo "Put project-specific context ABOVE the routing block in CLAUDE.md."
+  echo "This assumes the skills themselves are installed. If they are not:"
+  echo "  /plugin marketplace add afovea/product-team-skills"
+  echo "  /plugin install product-team"
+  exit 0
 fi
 
 # ------------------------------------------------------------------ gitignore
