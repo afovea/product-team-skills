@@ -11,3 +11,6 @@ evals/
 
 # Local Claude Code state. Machine-specific; never publish.
 .claude/
+
+# Skill ZIPs built by scripts/package-skills.sh for upload to the Claude apps.
+dist/

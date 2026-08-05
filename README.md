@@ -8,25 +8,43 @@ Every role is project-agnostic, so the same suite works on any codebase without 
 
 ## Quick start
 
-**Claude Code (terminal):**
+**In Claude Code**, type these two lines:
 
 ```
 /plugin marketplace add afovea/product-team-skills
-/plugin install product-team@productteam-skills
+/plugin install product-team
 ```
 
-**Claude Desktop** — `/plugin` is terminal-only, so use the CLI:
-
-```bash
-claude plugin marketplace add afovea/product-team-skills
-claude plugin install product-team@productteam-skills
-```
-
-Restart your session. All 27 skills appear in **Settings → Skills** and become invocable by name.
+If the install summary says `Run /reload-plugins to activate.`, run that too.
+Then check it worked — type `/product-` and the roles should autocomplete:
 
 ```
 /product-manager Turn this vague feature request into a delivery-ready ticket.
 ```
+
+That is the whole install for the Claude Code terminal and the desktop app's
+**Code** tab.
+
+> **Not in a Claude Code terminal?** The Claude desktop app's **Chat** tab,
+> claude.ai, cloud sessions and WSL each install differently — one page,
+> one section each, in **[INSTALL.md](./INSTALL.md)**. Start there if anything
+> below throws an error.
+
+<details>
+<summary><b>Three names that look alike — the usual cause of a failed install</b></summary>
+
+| Thing | Value |
+|---|---|
+| GitHub repo | `afovea/product-team-skills` |
+| Marketplace | `productteam-skills` — **no hyphen after `product`** |
+| Plugin | `product-team` |
+
+`/plugin install product-team@product-team-skills` — the natural guess — fails
+with `Plugin "product-team" not found in marketplace "product-team-skills"`.
+Dropping the `@marketplace` suffix entirely, as in the Quick start above,
+avoids the problem.
+
+</details>
 
 > **Installed from the old `ProductTeam-skills` repo?** It has moved here — see [Migrating](#migrating-from-the-old-repo).
 
@@ -119,39 +137,51 @@ Two roles carry reference material that loads only when needed: `/security-speci
 
 ## Install options
 
+Five routes, one per product surface. **[INSTALL.md](./INSTALL.md) walks each
+one through to a verified install**, with a troubleshooting section keyed to the
+exact error text. The summary:
+
 | Route | Command | You get |
 |---|---|---|
-| **Plugin** *(recommended)* | `claude plugin install product-team@productteam-skills` | All 27 skills, visible in Settings → Skills, updatable with one command. Skills only |
+| **Plugin** *(recommended)* | `/plugin install product-team` | All 27 skills **plus** the gate hook. Updatable with one command. No routing brain |
+| **Desktop app** | **+** → Plugins → Add plugin | The same, without a terminal |
+| **Cloud / web** | two keys in the repo's `.claude/settings.json` | The same, for everyone opening a cloud session on that repo |
 | **Per project** | `install.sh /path/to/project` | Skills in `<project>/.claude/skills/` **plus** the routing brain in its `CLAUDE.md` |
 | **Personal** | `install.sh --personal` | Skills in `~/.claude/skills/` — every project. Skills only |
 | **Submodule** | `install.sh --submodule /path/to/project` | Per-project, pinned to a tag, symlinked so discovery still works |
+| **Claude apps** | `scripts/package-skills.sh` → upload ZIPs | The roles you upload, in claude.ai and the Chat tab. No routing brain, no hook |
 
 The script is in the repo, so clone first for those routes:
 
 ```bash
 git clone https://github.com/afovea/product-team-skills.git
-./product-team-skills/install.sh /path/to/your-project
+cd product-team-skills
+./install.sh --verify                     # what is installed right now?
+./install.sh /path/to/your-project
 ```
 
-It copies the skills, appends the routing brain to `CLAUDE.md` **with the paths already rewritten**, updates `.gitignore`, and seeds a pipeline adapter template. Re-running updates the routing block in place between its markers and leaves anything you wrote above it alone.
+It copies the skills, appends the routing brain to `CLAUDE.md` **with the paths already rewritten**, updates `.gitignore`, and seeds a pipeline adapter template. Re-running updates the routing block in place between its markers and leaves anything you wrote above it alone. Running it with no arguments prints the menu rather than guessing a target.
 
 ### Which route
 
-- **Just want the skills, everywhere, visible?** Plugin.
+- **Just want the skills?** Plugin — terminal, desktop app, or a committed `.claude/settings.json` for cloud sessions.
 - **Want role arbitration too?** Plugin *plus* a per-project install — they stack. Only the per-project route can add `routing.md`, because `CLAUDE.md` is a per-project file.
 - **Want it pinned and tracked in the consuming repo?** Submodule.
+- **On claude.ai or the desktop app's Chat tab?** Those are a different product from Claude Code — ZIP upload, [INSTALL.md Route D](./INSTALL.md#route-d--claude-apps-chat-and-cowork).
 
-**The repo is the source, not an installation.** Cloning it makes the skills visible nowhere. Claude Code discovers them at `~/.claude/skills/<name>/SKILL.md` or `<project>/.claude/skills/<name>/SKILL.md`; the Skills panel lists only plugin-provided skills. Pick a route above, or you will not see them.
+**The repo is the source, not an installation.** Cloning it makes the skills visible nowhere. Claude Code discovers them at `~/.claude/skills/<name>/SKILL.md` or `<project>/.claude/skills/<name>/SKILL.md`, or from an installed plugin. Pick a route above, or you will not see them.
 
 ### Precedence and duplicates
 
-Enterprise overrides personal, personal overrides project, and any of them overrides a plugin skill of the same name. So a personal install **shadows the plugin silently** — both work, but you are running the copy you probably did not mean to update. Pick one route per machine.
+Enterprise overrides personal, and personal overrides project. Plugin skills are namespaced `plugin-name:skill-name`, so they never *collide* — but the bare name resolves to the filesystem copy. Install both ways and `/product-manager` runs the filesystem skill while the plugin copy stays reachable as `/product-team:product-manager`. Both work; you are just editing one and running the other.
+
+`./install.sh --verify` reports every copy it can find, and says which combinations are worth reducing to one.
 
 ### Context cost, and how to turn it down
 
 Installing 27 skills is not free. Two different costs, and the second is the one that actually bites.
 
-**Always-on** — every skill's `name` and `description` are preloaded into the system prompt so the host knows what exists. That is **~1,800 tokens on every session**, including projects with nothing to do with product work. Nothing else loads until a skill is invoked.
+**Always-on** — every skill's `name` and `description` are preloaded into the system prompt so the host knows what exists. That is **~2,300 tokens on every session**, including projects with nothing to do with product work. Nothing else loads until a skill is invoked.
 
 **On-invoke** — the skill's body enters the conversation when you call it, and **stays there for the rest of the session**. That ranges from ~1k to ~9.5k tokens depending on the skill. This is the larger number by far.
 
@@ -165,11 +195,11 @@ The heaviest bodies are worth knowing before you invoke them casually:
 
 | Skill | always-on | on-invoke |
 |---|---:|---:|
-| `motion-designer` | ~210 | ~9.5k |
-| `run-pipeline` | ~80 | ~5.8k |
-| `security-specialist` | ~90 | ~5.6k |
-| `storm-researcher` | ~70 | ~4.9k |
-| *typical role* | ~50 | ~1.3–2.5k |
+| `motion-designer` | ~270 | ~13k |
+| `run-pipeline` | ~110 | ~7.9k |
+| `security-specialist` | ~120 | ~7.7k |
+| `storm-researcher` | ~90 | ~6.7k |
+| *typical role* | ~50–150 | ~1.6–3.6k |
 
 #### Turn the always-on cost off entirely
 
@@ -210,7 +240,7 @@ This suite previously lived at `afovea/ProductTeam-skills`, which is now archive
 # 1. point the marketplace at the new repo
 claude plugin marketplace remove productteam-skills
 claude plugin marketplace add afovea/product-team-skills
-claude plugin install product-team@productteam-skills
+claude plugin install product-team
 
 # 2. if you used a filesystem install from an older layout, clear the stale
 #    nested pipeline directory — skills are flat now
@@ -225,6 +255,16 @@ Earlier versions nested the eight pipeline skills one level deeper, so an old in
 The skills are plain markdown following the [Agent Skills](https://agentskills.io) standard, so they work with any host that reads `SKILL.md`. The plugin route, `/name` invocation and `claude plugin` CLI are Claude Code features. The routing brain is a `CLAUDE.md` convention and needs a host that reads that file.
 
 Gate enforcement is the one capability that does not travel. Hooks are a Claude Code feature, so on any other `SKILL.md` host the pipeline skills still run and still report a failing gate — they just cannot be stopped by one. The skills remain fully portable; only the `Stop` hook is host-specific.
+
+What survives on each surface:
+
+| | Skills | Routing brain | Gate hook |
+|---|---|---|---|
+| Claude Code — terminal, desktop **Code** tab, cloud | ✅ | ✅ with a project install | ✅ |
+| Claude apps — claude.ai, desktop **Chat** tab, Cowork | ✅ ones you upload | ❌ no `CLAUDE.md` | ❌ no hooks |
+| Any other `SKILL.md` host | ✅ | depends on the host | ❌ |
+
+Claude Code in **WSL** is the one Claude Code surface without plugins — use a filesystem install there.
 
 ## The routing brain (optional second layer)
 
@@ -329,12 +369,14 @@ product-team-skills/
 │   ├── hooks.json                    # registers the Stop hook
 │   └── gate-stop.py                  # blocks the turn on a failing gate
 ├── scripts/
-│   └── gate-chain.py                 # standalone gate chain runner
+│   ├── gate-chain.py                 # standalone gate chain runner
+│   └── package-skills.sh             # builds upload ZIPs for the Claude apps
 ├── reference/                        # shared docs, deliberately not skills
 │   ├── project-adapter.md
 │   └── state-schema.md
 ├── routing.md                        # the routing brain
-├── install.sh
+├── install.sh                        # filesystem install; --verify reports state
+├── INSTALL.md                        # every install route, with troubleshooting
 └── README.md
 ```
 
