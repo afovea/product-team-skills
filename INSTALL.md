@@ -52,13 +52,20 @@ These instructions assume Claude is already installed and you are signed in.
 
 No terminal. This installs all 27 roles in one go.
 
-### Step 1 · Open a folder
+### Step 1 · Open the Code tab
 
-Open the Claude app and click the **Code** tab. It asks which folder to work in.
+Open the Claude app and click the **Code** tab. It asks you to pick a **project
+folder** before you can send a message.
 
-Any folder works — Claude Code needs somewhere to be, it does not need a coding
-project. If you have no obvious choice, make a new empty folder on your Desktop
-called `claude` and pick that. You can change it later.
+**Pick anything. It does not matter.** You are not setting up a project — Claude
+Code just always works somewhere, so it needs a folder to point at. Your
+Documents folder is fine. So is a new empty folder on your Desktop.
+
+The install goes onto your account, not into that folder: the roles then work in
+**every** folder you ever open, and nothing is written into the one you picked.
+
+> The one exception is the optional [routing brain](#part-5--optional--let-claude-pick-the-expert),
+> which is per-folder by design. Everything else here is machine-wide.
 
 ### Step 2 · Type two lines
 
@@ -127,10 +134,7 @@ makes Claude choose the right expert so you do not have to remember 27 names.
 Exactly the same result as Part 2. Use this if you prefer the terminal or do not
 have the desktop app.
 
-### Step 1 · Start Claude Code in a folder
-
-A terminal always has a "current folder", and Claude Code works on whatever
-folder you start it in.
+### Step 1 · Start Claude Code
 
 Open a terminal:
 
@@ -138,19 +142,36 @@ Open a terminal:
 - **Windows** — press Start, type `Terminal`, press Enter.
 - **Linux** — press `Ctrl + Alt + T`.
 
-Move to the folder you want, then start Claude:
+Type this and press Enter:
+
+```bash
+claude
+```
+
+That is all. **You do not need to be in any particular folder** — a terminal is
+always sitting in one already (your home folder, when you have just opened it),
+and that is good enough to install from. The install goes onto your account, so
+the roles then work everywhere and nothing is written into wherever you happened
+to be.
+
+<details>
+<summary><b>Starting Claude Code in a specific folder, for later</b></summary>
+
+Once you are actually using Claude Code on real files, you will want it pointed
+at those files. Use `cd` — "change directory" — before starting it:
 
 ```bash
 cd ~/Desktop
 claude
 ```
 
-`cd` means "change directory" — go to that folder. `~` is your home folder, so
-`~/Desktop` is your Desktop. Any folder is fine.
+`~` means your home folder, so `~/Desktop` is your Desktop.
 
-> **Getting a folder's path without typing it:** on a Mac, type `cd ` (with the
-> space) then drag the folder onto the terminal window — the path fills itself
-> in. On Windows, right-click the folder and choose **Copy as path**, then paste.
+To get a folder's path without typing it: on a Mac, type `cd ` (with the space)
+then drag the folder onto the terminal window and the path fills itself in. On
+Windows, right-click the folder and choose **Copy as path**, then paste.
+
+</details>
 
 > `claude: command not found`? This terminal cannot see Claude Code. If you have
 > the desktop app, use [Part 2](#part-2--claude-code-in-the-desktop-app) instead
