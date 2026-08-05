@@ -82,17 +82,32 @@ for n in "${NAMES[@]}"; do
     { print }
   ' "$SRC/$n/SKILL.md" > "$STAGE/$n/SKILL.md"
 
-  # Flatten every mtime to a fixed date. Without this each run stamps the files
-  # with "now", so rebuilding an unchanged skill produces a different archive
-  # and the committed ZIPs look modified on every build.
+  # Normalise everything the archive records besides the file contents, so the
+  # same skills produce the same bytes on any machine and CI can diff the
+  # committed result.
+  #
+  # mtime: without this each run stamps "now" and every ZIP looks modified.
+  # mode:  zip stores the Unix mode, and `cp -R` applies the local umask, so a
+  #        machine with a different umask would otherwise emit different bytes.
+  find "$STAGE/$n" -type d -exec chmod 755 {} +
+  find "$STAGE/$n" -type f -exec chmod 644 {} +
   find "$STAGE/$n" -exec touch -t 200001010000 {} +
 
   # Zip from the staging root so the archive contains `<name>/SKILL.md`, not a
   # bare SKILL.md — the uploader rejects an archive with no enclosing folder.
-  # -X drops platform metadata; with the fixed mtimes above, an unchanged skill
-  # rebuilds byte-identical and CI can diff the result.
+  # -X drops platform metadata.
+  #
+  # Feed zip an explicitly sorted file list rather than letting `-r` walk the
+  # tree. Directory traversal order is filesystem-dependent, so `-r` packs the
+  # same files in a different order on a different machine: identical size,
+  # different bytes. Only skills with a references/ subdirectory have more than
+  # one file, so those were the only two that ever disagreed. LC_ALL=C keeps
+  # the sort itself locale-independent.
   rm -f "$OUT/$n.zip"
-  ( cd "$STAGE" && zip -qrX "$OUT/$n.zip" "$n" -x '*.DS_Store' '__MACOSX/*' )
+  ( cd "$STAGE" \
+      && find "$n" -name '.DS_Store' -prune -o -print \
+       | LC_ALL=C sort \
+       | zip -qX "$OUT/$n.zip" -@ )
   echo "  $(basename "$OUT")/$n.zip"
 done
 
