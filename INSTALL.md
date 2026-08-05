@@ -44,35 +44,7 @@ bar, or the desktop app on the **Chat** tab. There is a message box and your pas
 conversations down the side.
 → **[Part 4](#part-4--claude-for-chatting-browser-or-chat-tab)**
 
-<details>
-<summary><b>I do not have Claude Code yet and I want it</b></summary>
-
-Claude Code is a separate thing from Claude chat. It works with the files in a
-folder on your computer — designs, docs, a codebase, anything — rather than just
-talking.
-
-**It needs a paid Claude plan.** Pro, Max, Team or Enterprise. The free plan does
-not include it. If you are on the free plan, use
-[Part 4](#part-4--claude-for-chatting-browser-or-chat-tab) instead — it works
-perfectly well.
-
-**Easiest way in — the desktop app.** No terminal at all:
-
-- [Download for macOS](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect)
-- [Download for Windows](https://claude.com/download)
-- [Linux instructions](https://code.claude.com/docs/en/desktop-linux)
-
-Install it, open it, sign in, click the **Code** tab. Then
-[Part 2](#part-2--claude-code-in-the-desktop-app).
-
-*On Windows you also need [Git for Windows](https://git-scm.com/downloads/win)
-installed before the Code tab works. Install it, then restart the Claude app.*
-
-**If you would rather use a terminal**, Anthropic has a
-[guide for people who have never used one](https://code.claude.com/docs/en/terminal-guide),
-then [Part 3](#part-3--claude-code-in-a-terminal).
-
-</details>
+These instructions assume Claude is already installed and you are signed in.
 
 ---
 
@@ -180,8 +152,9 @@ claude
 > space) then drag the folder onto the terminal window — the path fills itself
 > in. On Windows, right-click the folder and choose **Copy as path**, then paste.
 
-> `claude: command not found`? Claude Code is not installed. See
-> [I do not have Claude Code yet](#part-1--which-claude-do-you-have) above.
+> `claude: command not found`? This terminal cannot see Claude Code. If you have
+> the desktop app, use [Part 2](#part-2--claude-code-in-the-desktop-app) instead
+> — the app does not add a `claude` command to your terminal.
 
 ### Step 2 · Type two lines
 
@@ -349,8 +322,15 @@ column with how I actually invoke each role, e.g. `/product-manager`.
 
 Then start a new session so it is picked up.
 
-**The exact way**, if you have a terminal and want it done identically every
-time:
+That only writes `CLAUDE.md`. It does not copy any skills, because you already
+have them from the plugin — a second copy on disk would shadow the first and then
+quietly go out of date.
+
+<details>
+<summary><b>Doing it from a terminal instead — needs git</b></summary>
+
+Identical result, done the same way every time. This is the only step in this
+guide that needs `git` installed; the paste-in method above does not.
 
 ```bash
 git clone https://github.com/afovea/product-team-skills.git
@@ -358,9 +338,7 @@ cd product-team-skills
 ./install.sh --routing-only /path/to/your/folder
 ```
 
-That only writes `CLAUDE.md`. It does not copy any skills, because you already
-have them from the plugin — a second copy on disk would shadow the first and then
-quietly go out of date.
+</details>
 
 ---
 
