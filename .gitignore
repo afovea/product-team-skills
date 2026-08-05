@@ -11,3 +11,7 @@ evals/
 
 # Local Claude Code state. Machine-specific; never publish.
 .claude/
+
+# download/ is deliberately NOT ignored. Those ZIPs are the no-terminal install
+# route — people download them straight from GitHub — so they have to be in the
+# repo. CI rebuilds them and fails if they drift from skills/.

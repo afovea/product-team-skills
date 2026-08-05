@@ -1,0 +1,24 @@
+name: verify
+
+# Calls scripts/verify.sh and nothing else, deliberately. Keeping the checks in
+# a script rather than inline YAML means running it locally exercises the exact
+# same code path — the previous version had the checks written out twice and
+# they disagreed, passing locally while failing here.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install zip
+        run: sudo apt-get install -y --no-install-recommends zip > /dev/null
+
+      - name: Run checks
+        run: ./scripts/verify.sh

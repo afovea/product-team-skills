@@ -8,31 +8,143 @@ Every role is project-agnostic, so the same suite works on any codebase without 
 
 ## Quick start
 
-**Claude Code (terminal):**
+**Find your row, then read that section.** Which Claude you are in decides the
+method — they are not interchangeable, and using the wrong one is the single
+most common failed install.
+
+| Where you are | Method | Section |
+|---|---|---|
+| **Claude web** — `claude.ai` in a browser, chatting | Upload each role | [A](#a--claude-web-claudeai-in-a-browser) |
+| **Claude app** — desktop app, **Chat** tab | Upload each role | [B](#b--claude-app-chat-tab) |
+| **Claude app** — desktop app, **Code** tab | Two typed lines, all 27 | [C](#c--claude-app-code-tab-claude-code) |
+| **Claude Code** — a terminal | Two typed lines, all 27 | [D](#d--claude-code-in-a-terminal) |
+| **Claude Code on the web** — `claude.ai/code`, cloud sessions | A committed settings file | [E](#e--claude-code-on-the-web-cloud-sessions) |
+
+---
+
+### A · Claude web (`claude.ai` in a browser)
+
+Chat, in a browser. Download the roles you want and upload them.
+
+1. **Settings → Capabilities** → switch on **Code execution** and **File
+   creation**. Skills do not run without both.
+2. Download a role — say
+   [product-designer.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-designer.zip)
+   or [product-manager.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-manager.zip).
+   All 27 are in [`download/`](./download). **Do not unzip them.**
+3. **Settings → Capabilities → Skills → +** → upload the file → switch it on.
+4. Ask for what you want, naming the role: *"As a product designer, our reports
+   page is blank for new users. Design the empty state."*
+
+Uploads attach to your account, so they appear in the app's Chat tab too — do
+this once, not twice.
+
+### B · Claude app, Chat tab
+
+Same product as A, same files, **different menu**. The app has a
+**Customize** entry that the browser does not.
+
+1. **Settings → Capabilities** → switch on **Code execution** and **File
+   creation**.
+2. Download the roles you want from [`download/`](./download).
+3. **Customize** in the left sidebar → **Skills** → **+** → upload → switch it on.
+4. Ask for what you want, naming the role.
+
+Already done it in the browser? Your skills are already here. Skip this.
+
+### C · Claude app, Code tab (Claude Code)
+
+Not chat — this is Claude Code inside the app. Installs all 27 at once, with no
+terminal: the two lines go into the ordinary message box.
 
 ```
 /plugin marketplace add afovea/product-team-skills
-/plugin install product-team@productteam-skills
+/plugin install product-team
 ```
 
-**Claude Desktop** — `/plugin` is terminal-only, so use the CLI:
-
-```bash
-claude plugin marketplace add afovea/product-team-skills
-claude plugin install product-team@productteam-skills
-```
-
-Restart your session. All 27 skills appear in **Settings → Skills** and become invocable by name.
+If it says `Run /reload-plugins to activate.`, run that too. Then type
+`/product-` — the roles should autocomplete:
 
 ```
 /product-manager Turn this vague feature request into a delivery-ready ticket.
 ```
 
+The app asks for a project folder before you can send anything. Pick any folder —
+the install goes onto your account, works in every folder afterwards, and writes
+nothing into the one you picked.
+
+### D · Claude Code in a terminal
+
+Identical to C. Run `claude` from any folder, then type the same two lines.
+
+```
+/plugin marketplace add afovea/product-team-skills
+/plugin install product-team
+```
+
+### For C and D
+
+You also get the delivery pipeline and the gate-enforcement hook. Add
+[the routing brain](#the-routing-brain-optional-second-layer) with
+`./install.sh --routing-only /path/to/project` and Claude picks the role for you.
+
+> Copy those two lines exactly. The names differ by a hyphen — the repo is
+> `product-team-skills`, the marketplace `productteam-skills`, the plugin
+> `product-team`. `/plugin install product-team@product-team-skills` fails with
+> `Plugin "product-team" not found in marketplace "product-team-skills"`.
+
+### E · Claude Code on the web (cloud sessions)
+
+Cloud sessions do not read your machine, and the plugin browser is unavailable
+there. Declare the plugin in the repository instead, and everyone who opens a
+cloud session on it gets the skills automatically.
+
+Add this to `.claude/settings.json` **in that repository** and commit it:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "productteam-skills": {
+      "source": { "source": "github", "repo": "afovea/product-team-skills" }
+    }
+  },
+  "enabledPlugins": { "product-team@productteam-skills": true }
+}
+```
+
+Merge these keys into the file if it already exists. If `.gitignore` contains
+`.claude/`, add `!.claude/settings.json` or the file will never be committed.
+
+---
+
+**➡️ [Step-by-step guide for all of these, written for non-technical users](./INSTALL.md)**
+— how to tell which Claude you are in, where to click, what you should see, and
+what to do when it does not work.
+
 > **Installed from the old `ProductTeam-skills` repo?** It has moved here — see [Migrating](#migrating-from-the-old-repo).
 
 ## Invoking a skill
 
-Type `/` then the skill name, **and give it the task in the same message.** Invoking bare loads the persona with no brief, and it will just ask you what you want.
+**Whichever route you installed by, give the role the actual task in the same
+message.** Summoning a role with nothing to do gets you a question back, not the
+work.
+
+### In a browser or the app's chat
+
+Name the role in ordinary words. Claude picks the skill from what you wrote.
+
+```
+As a product designer, our reports page is blank for new users. Design the empty state.
+Acting as an accessibility specialist, this chart uses colour alone for four series. Problem?
+As a content designer, rewrite this error: "Error 4012: request failed."
+```
+
+If Claude picks the wrong expert, say so — "answer this as a content designer,
+not a product manager". Uploading fewer skills makes it pick better.
+
+### In Claude Code
+
+Type `/` then the skill name.
 
 ```
 /product-designer Our reports page is blank for new users. Design the empty state.
@@ -48,14 +160,20 @@ Two forms both work:
 | `/product-designer` | Normal use — shortest form |
 | `/product-team:product-designer` | Unambiguous. Needed only if a personal or project skill shares the name |
 
-### They do not fire on their own
+### Automatic selection differs by host, on purpose
 
-Every skill sets `disable-model-invocation: true`. Describing a design problem in prose will **not** auto-summon `/product-designer`. That is deliberate: automatic invocation selects by description keyword-matching, and testing showed that picks badly — "payments integration" pulled the Pricing Strategist, "release risk" pulled the Delivery Manager.
+In Claude Code every skill sets `disable-model-invocation: true`, so describing a
+design problem in prose will **not** auto-summon `/product-designer`. That is
+deliberate: automatic invocation selects by description keyword-matching, and
+testing showed that picks badly — "payments integration" pulled the Pricing
+Strategist, "release risk" pulled the Delivery Manager. You get selection
+explicitly with `/name`, or via [the routing brain](#the-routing-brain-optional-second-layer)
+when you don't know which discipline you want.
 
-You get selection two ways instead:
-
-- **Explicitly**, with `/name` — when you know which discipline you want.
-- **Via the routing brain**, by asking in plain prose — when you don't. See [The routing brain](#the-routing-brain-optional-second-layer).
+The Claude apps have no `/name` invocation at all, so Claude choosing is the only
+mechanism there. The ZIPs under [`download/`](./download) therefore ship with
+that line stripped — keeping it would package skills that could never fire.
+Naming the role in your sentence is how you steer the choice.
 
 ### Once invoked, a skill stays loaded
 
@@ -119,39 +237,52 @@ Two roles carry reference material that loads only when needed: `/security-speci
 
 ## Install options
 
+Five routes, one per product surface. **[INSTALL.md](./INSTALL.md) walks each
+one through to a verified install**, with a troubleshooting section keyed to the
+exact error text. The summary:
+
 | Route | Command | You get |
 |---|---|---|
-| **Plugin** *(recommended)* | `claude plugin install product-team@productteam-skills` | All 27 skills, visible in Settings → Skills, updatable with one command. Skills only |
+| **Plugin** *(recommended)* | `/plugin install product-team` | All 27 skills **plus** the gate hook. Updatable with one command. No routing brain |
+| **Desktop app** | **+** → Plugins → Add plugin | The same, without a terminal |
+| **Cloud / web** | two keys in the repo's `.claude/settings.json` | The same, for everyone opening a cloud session on that repo |
+| **Routing only** | `install.sh --routing-only /path/to/project` | The routing brain alone, for when the plugin already supplies the skills |
 | **Per project** | `install.sh /path/to/project` | Skills in `<project>/.claude/skills/` **plus** the routing brain in its `CLAUDE.md` |
 | **Personal** | `install.sh --personal` | Skills in `~/.claude/skills/` — every project. Skills only |
 | **Submodule** | `install.sh --submodule /path/to/project` | Per-project, pinned to a tag, symlinked so discovery still works |
+| **Claude apps** *(no terminal)* | download a ZIP from [`download/`](./download), upload it | The roles you upload, in claude.ai and the Chat tab. No routing brain, no hook |
 
 The script is in the repo, so clone first for those routes:
 
 ```bash
 git clone https://github.com/afovea/product-team-skills.git
-./product-team-skills/install.sh /path/to/your-project
+cd product-team-skills
+./install.sh --verify                     # what is installed right now?
+./install.sh /path/to/your-project
 ```
 
-It copies the skills, appends the routing brain to `CLAUDE.md` **with the paths already rewritten**, updates `.gitignore`, and seeds a pipeline adapter template. Re-running updates the routing block in place between its markers and leaves anything you wrote above it alone.
+It copies the skills, appends the routing brain to `CLAUDE.md` **with the paths already rewritten**, updates `.gitignore`, and seeds a pipeline adapter template. Re-running updates the routing block in place between its markers and leaves anything you wrote above it alone. Running it with no arguments prints the menu rather than guessing a target.
 
 ### Which route
 
-- **Just want the skills, everywhere, visible?** Plugin.
-- **Want role arbitration too?** Plugin *plus* a per-project install — they stack. Only the per-project route can add `routing.md`, because `CLAUDE.md` is a per-project file.
+- **Just want the skills?** Plugin — terminal, desktop app, or a committed `.claude/settings.json` for cloud sessions.
+- **Want role arbitration too?** Plugin *plus* `install.sh --routing-only`. Routing lives in `CLAUDE.md`, which is per-project, so no plugin can carry it. Use `--routing-only` rather than a full per-project install: the latter puts a second copy of all 27 skills on disk, which claims the bare `/name` and then goes stale independently of the plugin.
 - **Want it pinned and tracked in the consuming repo?** Submodule.
+- **On claude.ai or the desktop app's Chat tab?** Those are a different product from Claude Code — download a ZIP from [`download/`](./download) and upload it, per [INSTALL.md](./INSTALL.md#part-4--claude-for-chatting-browser-or-chat-tab).
 
-**The repo is the source, not an installation.** Cloning it makes the skills visible nowhere. Claude Code discovers them at `~/.claude/skills/<name>/SKILL.md` or `<project>/.claude/skills/<name>/SKILL.md`; the Skills panel lists only plugin-provided skills. Pick a route above, or you will not see them.
+**The repo is the source, not an installation.** Cloning it makes the skills visible nowhere. Claude Code discovers them at `~/.claude/skills/<name>/SKILL.md` or `<project>/.claude/skills/<name>/SKILL.md`, or from an installed plugin. Pick a route above, or you will not see them.
 
 ### Precedence and duplicates
 
-Enterprise overrides personal, personal overrides project, and any of them overrides a plugin skill of the same name. So a personal install **shadows the plugin silently** — both work, but you are running the copy you probably did not mean to update. Pick one route per machine.
+Enterprise overrides personal, and personal overrides project. Plugin skills are namespaced `plugin-name:skill-name`, so they never *collide* — but the bare name resolves to the filesystem copy. Install both ways and `/product-manager` runs the filesystem skill while the plugin copy stays reachable as `/product-team:product-manager`. Both work; you are just editing one and running the other.
+
+`./install.sh --verify` reports every copy it can find, and says which combinations are worth reducing to one.
 
 ### Context cost, and how to turn it down
 
 Installing 27 skills is not free. Two different costs, and the second is the one that actually bites.
 
-**Always-on** — every skill's `name` and `description` are preloaded into the system prompt so the host knows what exists. That is **~1,800 tokens on every session**, including projects with nothing to do with product work. Nothing else loads until a skill is invoked.
+**Always-on** — every skill's `name` and `description` are preloaded into the system prompt so the host knows what exists. That is **~2,300 tokens on every session**, including projects with nothing to do with product work. Nothing else loads until a skill is invoked.
 
 **On-invoke** — the skill's body enters the conversation when you call it, and **stays there for the rest of the session**. That ranges from ~1k to ~9.5k tokens depending on the skill. This is the larger number by far.
 
@@ -165,11 +296,11 @@ The heaviest bodies are worth knowing before you invoke them casually:
 
 | Skill | always-on | on-invoke |
 |---|---:|---:|
-| `motion-designer` | ~210 | ~9.5k |
-| `run-pipeline` | ~80 | ~5.8k |
-| `security-specialist` | ~90 | ~5.6k |
-| `storm-researcher` | ~70 | ~4.9k |
-| *typical role* | ~50 | ~1.3–2.5k |
+| `motion-designer` | ~270 | ~13k |
+| `run-pipeline` | ~110 | ~7.9k |
+| `security-specialist` | ~120 | ~7.7k |
+| `storm-researcher` | ~90 | ~6.7k |
+| *typical role* | ~50–150 | ~1.6–3.6k |
 
 #### Turn the always-on cost off entirely
 
@@ -210,7 +341,7 @@ This suite previously lived at `afovea/ProductTeam-skills`, which is now archive
 # 1. point the marketplace at the new repo
 claude plugin marketplace remove productteam-skills
 claude plugin marketplace add afovea/product-team-skills
-claude plugin install product-team@productteam-skills
+claude plugin install product-team
 
 # 2. if you used a filesystem install from an older layout, clear the stale
 #    nested pipeline directory — skills are flat now
@@ -225,6 +356,16 @@ Earlier versions nested the eight pipeline skills one level deeper, so an old in
 The skills are plain markdown following the [Agent Skills](https://agentskills.io) standard, so they work with any host that reads `SKILL.md`. The plugin route, `/name` invocation and `claude plugin` CLI are Claude Code features. The routing brain is a `CLAUDE.md` convention and needs a host that reads that file.
 
 Gate enforcement is the one capability that does not travel. Hooks are a Claude Code feature, so on any other `SKILL.md` host the pipeline skills still run and still report a failing gate — they just cannot be stopped by one. The skills remain fully portable; only the `Stop` hook is host-specific.
+
+What survives on each surface:
+
+| | Skills | Routing brain | Gate hook |
+|---|---|---|---|
+| Claude Code — terminal, desktop **Code** tab, cloud | ✅ | ✅ with a project install | ✅ |
+| Claude apps — claude.ai, desktop **Chat** tab, Cowork | ✅ ones you upload | ❌ no `CLAUDE.md` | ❌ no hooks |
+| Any other `SKILL.md` host | ✅ | depends on the host | ❌ |
+
+Claude Code in **WSL** is the one Claude Code surface without plugins — use a filesystem install there.
 
 ## The routing brain (optional second layer)
 
@@ -328,13 +469,18 @@ product-team-skills/
 ├── hooks/                            # deterministic enforcement
 │   ├── hooks.json                    # registers the Stop hook
 │   └── gate-stop.py                  # blocks the turn on a failing gate
+├── download/                         # one upload-ready ZIP per skill, committed
+│   ├── product-designer.zip          #   so non-technical users can install
+│   └── ...                           #   without a terminal. CI keeps it in sync
 ├── scripts/
-│   └── gate-chain.py                 # standalone gate chain runner
+│   ├── gate-chain.py                 # standalone gate chain runner
+│   └── package-skills.sh             # rebuilds download/
 ├── reference/                        # shared docs, deliberately not skills
 │   ├── project-adapter.md
 │   └── state-schema.md
 ├── routing.md                        # the routing brain
-├── install.sh
+├── install.sh                        # filesystem install; --verify reports state
+├── INSTALL.md                        # every install route, with troubleshooting
 └── README.md
 ```
 
