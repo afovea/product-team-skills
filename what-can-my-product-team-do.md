@@ -12,6 +12,25 @@ The capabilities below describe what can be achieved by orchestrating the approp
 
 ---
 
+## Preserve project knowledge
+
+Use the Project Point of Truth practice to keep durable product context available beyond one conversation or delivery cycle.
+
+The team can:
+
+- Brief a new contributor from the project’s confirmed facts and active decisions.
+- Answer product questions without presenting assumptions as facts.
+- Record proposed facts, decisions, constraints, assumptions, risks, questions, and learning.
+- Check a PRD, roadmap, design, implementation, or plan against established project knowledge.
+- Identify contradictions between the PPoT and another credible source.
+- Review stale, unsupported, duplicated, or ownerless knowledge.
+- Surface durable learning produced by any other product-team practice.
+- Preserve human approval before project knowledge is confirmed or published.
+
+Every skill uses the same pull/push handshake: read relevant `PPoT.md` context before substantive work, then offer any durable new knowledge back as a proposal. See [Using the Project Point of Truth](./docs/PPOT.md).
+
+---
+
 ## Turn an idea into a product
 
 Start with a relatively undeveloped concept and use the team to progressively turn it into something viable, testable and buildable.

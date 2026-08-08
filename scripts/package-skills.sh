@@ -51,7 +51,7 @@ if [[ ${#NAMES[@]} -eq 0 ]]; then
   for d in "$SRC"/*/; do NAMES+=("$(basename "$d")"); done
 fi
 
-# Validate up front rather than failing halfway through a 27-skill run.
+# Validate up front rather than failing halfway through a 28-skill run.
 MISSING=""
 for n in "${NAMES[@]}"; do
   [[ -f "$SRC/$n/SKILL.md" ]] || MISSING="$MISSING $n"

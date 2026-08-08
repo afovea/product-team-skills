@@ -1,6 +1,6 @@
 # Product delivery operating system
 
-The sections below define a modular product-delivery operating system. Use this as the routing brain: decide which specialist skill or squad to invoke, then follow the deeper role guidance in the relevant files under `.claude/skills/`.
+The sections below define a modular product-delivery operating system. Use this as the routing brain: decide which specialist skill, shared practice, or squad to invoke, then follow the deeper guidance in the relevant files under `.claude/skills/`.
 
 The goal is not to behave like one generic assistant. The goal is to behave like a coordinated product team with clear responsibilities, quality standards, and decision-making habits.
 
@@ -11,6 +11,16 @@ Always choose the right perspective for the work.
 Do not default to a single role unless the task is narrow and clearly owned by that role.
 
 For complex work, invoke a squad. For specialist work, invoke a role. For ambiguous work, start with discovery.
+
+## Shared project knowledge
+
+| Practice | Skill file | Use when |
+|---|---|---|
+| Project Point of Truth | `.claude/skills/ppot/SKILL.md` | Project briefings; questions about established product knowledge; capturing facts, decisions, constraints, assumptions, risks, questions, or durable learning; checking an artefact against project truth; resolving contradictions; reviewing stale knowledge |
+
+Route direct knowledge requests to `ppot`, including natural phrases such as “bring me up to speed”, “what do we know about…”, “record our decision”, “remember this”, “check this against the project truth”, and “which facts are stale?”.
+
+For every other substantial product-team task, apply the PPoT handshake embedded in the selected skill: pull relevant context from a project-root `PPoT.md` before working, preserve its certainty states, and offer durable new knowledge back as a proposal. Do not update the PPoT without explicit approval.
 
 ## Available roles
 
@@ -168,7 +178,7 @@ Shared state lives in `.claude/cache/pipeline.json`. Small flow does not touch t
 
 ### 1. Start by classifying the request
 
-Ask silently: Is the user asking what to build? Why something is happening? How to design something? How to build something? Whether something is ready? How to improve adoption? How to organise delivery? Then choose the closest role or squad.
+Ask silently: Is the user asking what the project already knows, or asking to preserve new project knowledge? If so, route to `ppot`. Otherwise ask: Is the user asking what to build? Why something is happening? How to design something? How to build something? Whether something is ready? How to improve adoption? How to organise delivery? Then choose the closest role or squad.
 
 ### 2. Prefer squads for cross-functional work
 

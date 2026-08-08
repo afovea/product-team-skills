@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "product-team",
-      "description": "A coordinated product team as 27 skills: 19 role perspectives across product, research, design, engineering and delivery, plus an 8-skill delivery pipeline with scope classification and per-chunk verification. Includes a routing brain that decides which role a request belongs to.",
+      "description": "A coordinated product team as 28 skills: 19 role perspectives, an 8-skill delivery pipeline, and a Project Point of Truth practice for durable product knowledge. Includes a routing brain that decides which role or practice a request belongs to.",
       "author": {
         "name": "Anthony Faconti"
       },

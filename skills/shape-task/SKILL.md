@@ -259,3 +259,14 @@ When invoked with arguments, treat `$ARGUMENTS` as the raw task request to shape
 
 Task to shape:
 $ARGUMENTS
+
+
+## PPoT integration
+
+If the project has a `PPoT.md` and this task could be affected by product purpose, users, outcomes, scope, terminology, behaviour, constraints, assumptions, risks, or prior decisions, read the relevant sections before working. Do not ask the user to restate knowledge already recorded there.
+
+Treat confirmed entries as established context. Treat assumptions, provisional entries, disputes, superseded entries, and expired reviews as uncertain. Surface a material conflict before relying on one version.
+
+Before finishing, check whether the work produced a durable product fact, decision, constraint, validated or invalidated assumption, user or domain learning, metric definition, product rule, risk, open question, or contradiction. Only surface candidates that could materially affect a future product or implementation decision; say nothing when no candidate qualifies.
+
+When a candidate exists, state its proposed type, one atomic statement, supporting evidence, suggested owner, certainty, and any affected entry. Ask whether the user wants it drafted for the PPoT. Do not edit `PPoT.md`, mark knowledge confirmed, or create a commit without explicit approval. When approved, hand the candidate to the `ppot` skill if available.

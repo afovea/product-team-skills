@@ -5,7 +5,7 @@ none of them assume you write code.
 
 | You are using | Time | Go to |
 |---|---|---|
-| **Claude Code in the desktop app** — no terminal, all 27 roles at once | 3 min | **[Part 2](#part-2--claude-code-in-the-desktop-app)** |
+| **Claude Code in the desktop app** — no terminal, all 28 skills at once | 3 min | **[Part 2](#part-2--claude-code-in-the-desktop-app)** |
 | **Claude Code in a terminal** — same result, typed commands | 3 min | **[Part 3](#part-3--claude-code-in-a-terminal)** |
 | **Claude for chatting** — browser or the app's Chat tab | 5 min | **[Part 4](#part-4--claude-for-chatting-browser-or-chat-tab)** |
 
@@ -16,9 +16,10 @@ you from what is on your screen.
 
 ## What you are installing
 
-27 expert personas. You ask Claude something, and it answers as a product
-manager, a UX researcher, an accessibility specialist — with that discipline's
-judgement instead of a generic answer.
+The suite contains 19 expert personas, eight delivery-pipeline skills, and a
+Project Point of Truth practice. You can ask Claude to work as a product manager,
+UX researcher, or accessibility specialist, run a coding task through the
+pipeline, or use the PPoT to preserve durable project knowledge.
 
 There is also a **delivery pipeline** for running coding tasks step by step, and
 a **routing brain** that picks the right expert for you. Both are optional and
@@ -55,7 +56,7 @@ These instructions assume Claude is already installed and you are signed in.
 
 ## Part 2 — Claude Code in the desktop app
 
-No terminal. This installs all 27 roles in one go.
+No terminal. This installs all 28 skills in one go.
 
 ### Step 1 · Open the Code tab
 
@@ -130,7 +131,7 @@ A role with no task attached will just ask you what you want, so always give it
 the work in the same message.
 
 **Optional but recommended:** [Part 5](#part-5--optional--let-claude-pick-the-expert)
-makes Claude choose the right expert so you do not have to remember 27 names.
+makes Claude choose the right expert so you do not have to remember 28 names.
 
 ---
 
@@ -226,7 +227,7 @@ Skills do not run without these. This is the most common reason an install
 
 Each is one small file. **Click a link and it downloads.** Nothing opens.
 
-**Suggested starting set** — click all five:
+**Suggested starting set** — click all six:
 
 | Role | What it does |
 |---|---|
@@ -235,9 +236,13 @@ Each is one small file. **Click a link and it downloads.** Nothing opens.
 | [accessibility-specialist.zip](https://github.com/afovea/product-team-skills/raw/main/download/accessibility-specialist.zip) | WCAG review, inclusive design, contrast, screen readers |
 | [ux-researcher.zip](https://github.com/afovea/product-team-skills/raw/main/download/ux-researcher.zip) | Research planning, interviews, synthesis |
 | [product-manager.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-manager.zip) | Scope, priorities, outcomes, PRDs, tickets |
+| [ppot.zip](https://github.com/afovea/product-team-skills/raw/main/download/ppot.zip) | Project briefings, decisions, assumptions, durable learning, and knowledge review |
 
 <details>
-<summary><b>All 27 — click to see the full list</b></summary>
+<summary><b>All 28 — click to see the full list</b></summary>
+
+**Shared project knowledge**
+[ppot](https://github.com/afovea/product-team-skills/raw/main/download/ppot.zip)
 
 **Product and strategy**
 [product-manager](https://github.com/afovea/product-team-skills/raw/main/download/product-manager.zip) ·
@@ -461,7 +466,7 @@ help.
 
 ## Which route gives you what
 
-| | The 27 roles | Delivery pipeline | Routing brain | Gate enforcement |
+| | The 28 skills | Delivery pipeline | Routing brain | Gate enforcement |
 |---|---|---|---|---|
 | Claude Code — desktop app or terminal | ✅ all at once | ✅ | ✅ via [Part 5](#part-5--optional--let-claude-pick-the-expert) | ✅ |
 | Claude for chatting | ✅ the ones you upload | partly — built for Claude Code | ❌ | ❌ |
@@ -478,8 +483,8 @@ For teams and repositories. The [README](./README.md) has the detail.
 | Route | Command | Adds |
 |---|---|---|
 | Cloud sessions | `enabledPlugins` in the repo's `.claude/settings.json` | the plugin, for everyone opening a cloud session on that repo |
-| Project | `./install.sh /path/to/project` | 27 skills on disk + the routing brain |
-| Personal | `./install.sh --personal` | 27 skills on disk, every project |
+| Project | `./install.sh /path/to/project` | 28 skills on disk + the routing brain |
+| Personal | `./install.sh --personal` | 28 skills on disk, every project |
 | Routing only | `./install.sh --routing-only /path` | the routing brain, nothing else |
 | Submodule | `./install.sh --submodule /path` | pinned to a tag, symlinked |
 
