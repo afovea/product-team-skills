@@ -6,6 +6,9 @@ Invoke a role when you want a specific discipline's judgement: a PRD, a componen
 
 Every role is project-agnostic, so the same suite works on any codebase without dragging another project's context along.
 
+**→ [What can my product team do?](./what-can-my-product-team-do.md)**  
+See the kinds of end-to-end product work these skills can undertake individually and in combination.
+
 ## Quick start
 
 **Find your row, then read that section.** Which Claude you are in decides the
