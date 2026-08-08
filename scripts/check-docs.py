@@ -5,6 +5,7 @@ Two failure modes this catches, both of which strand a reader mid-install:
 
   - a heading link that no longer matches its heading, so the "go to Part 4"
     link silently does nothing
+  - a local Markdown link whose target does not exist
   - a download/<skill>.zip link with no such file, so the button a
     non-technical user is told to click 404s
 
@@ -17,7 +18,7 @@ import re
 import sys
 from pathlib import Path
 
-DOCS = ["README.md", "INSTALL.md"]
+DOCS = ["README.md", "INSTALL.md", "what-can-my-product-team-do.md", "docs/PPOT.md"]
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -42,6 +43,12 @@ def main() -> int:
     problems: list[str] = []
 
     for name, text in docs.items():
+        source_dir = (ROOT / name).parent
+        for target in re.findall(r"\]\((?!https?://|mailto:|#)([^)#]+)(?:#[^)]+)?\)", text):
+            clean = target.strip("<>")
+            if not (source_dir / clean).resolve().exists():
+                problems.append(f"{name}: local link target does not exist -> {target}")
+
         for link in re.findall(r"\]\((\.?/?[\w.\-]*#[\w-]+)\)", text):
             target_file, _, anchor = link.partition("#")
             target = name if target_file in ("", "#") else target_file.lstrip("./")

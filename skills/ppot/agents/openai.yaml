@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Point of Truth"
+  short_description: "Consult and maintain durable project knowledge"
+  default_prompt: "Use $ppot to brief me on the project and identify any knowledge that needs review."

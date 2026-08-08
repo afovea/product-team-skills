@@ -27,6 +27,8 @@ for s in install.sh scripts/package-skills.sh scripts/verify.sh; do
   if bash -n "$s" 2>/dev/null; then ok "$s"; else bad "$s does not parse"; fi
 done
 
+PYTHONPYCACHEPREFIX="${TMPDIR:-/tmp}/product-team-skills-pycache"
+export PYTHONPYCACHEPREFIX
 for p in scripts/gate-chain.py hooks/gate-stop.py; do
   if python3 -m py_compile "$p" 2>/dev/null; then ok "$p"; else bad "$p does not compile"; fi
 done
@@ -74,7 +76,12 @@ ZIP_ISSUES=0
 for z in download/*.zip; do
   n="$(basename "$z" .zip)"
   # An archive with no enclosing folder is rejected on upload.
-  unzip -l "$z" | grep -q " $n/SKILL.md\$" || { bad "$z: no $n/SKILL.md"; ZIP_ISSUES=1; }
+  # Consume the complete listing. `grep -q` exits at the first match, which
+  # makes `unzip` receive SIGPIPE under `set -o pipefail` for larger skills.
+  unzip -Z1 "$z" | awk -v want="$n/SKILL.md" '
+    $0 == want { found = 1 }
+    END { exit !found }
+  ' || { bad "$z: no $n/SKILL.md"; ZIP_ISSUES=1; }
   # The Claude apps have no /name invocation, so a skill still carrying this
   # flag would install cleanly and then never fire.
   if unzip -p "$z" "$n/SKILL.md" | awk '/^---$/{c++; next} c==1' \

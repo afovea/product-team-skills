@@ -1,6 +1,6 @@
 # product-team-skills
 
-A coordinated product team as **27 Agent Skills** — 19 role perspectives plus an 8-skill delivery pipeline — with a routing brain that decides which one a request belongs to.
+A coordinated product team as **28 Agent Skills** — 19 role perspectives, an 8-skill delivery pipeline, and a Project Point of Truth practice — with a routing brain that decides which one a request belongs to.
 
 Invoke a role when you want a specific discipline's judgement: a PRD, a component spec, an accessibility review, a threat model, a motion spec, a release decision. Run the pipeline when a coding task should be classified, chunked and verified rather than just done.
 
@@ -19,8 +19,8 @@ most common failed install.
 |---|---|---|
 | **Claude web** — `claude.ai` in a browser, chatting | Upload each role | [A](#a--claude-web-claudeai-in-a-browser) |
 | **Claude app** — desktop app, **Chat** tab | Upload each role | [B](#b--claude-app-chat-tab) |
-| **Claude app** — desktop app, **Code** tab | Two typed lines, all 27 | [C](#c--claude-app-code-tab-claude-code) |
-| **Claude Code** — a terminal | Two typed lines, all 27 | [D](#d--claude-code-in-a-terminal) |
+| **Claude app** — desktop app, **Code** tab | Two typed lines, all 28 | [C](#c--claude-app-code-tab-claude-code) |
+| **Claude Code** — a terminal | Two typed lines, all 28 | [D](#d--claude-code-in-a-terminal) |
 | **Claude Code on the web** — `claude.ai/code`, cloud sessions | A committed settings file | [E](#e--claude-code-on-the-web-cloud-sessions) |
 
 ---
@@ -34,7 +34,7 @@ Chat, in a browser. Download the roles you want and upload them.
 2. Download a role — say
    [product-designer.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-designer.zip)
    or [product-manager.zip](https://github.com/afovea/product-team-skills/raw/main/download/product-manager.zip).
-   All 27 are in [`download/`](./download). **Do not unzip them.**
+   All 28 are in [`download/`](./download). **Do not unzip them.**
 3. **Settings → Capabilities → Skills → +** → upload the file → switch it on.
 4. Ask for what you want, naming the role: *"As a product designer, our reports
    page is blank for new users. Design the empty state."*
@@ -57,7 +57,7 @@ Already done it in the browser? Your skills are already here. Skip this.
 
 ### C · Claude app, Code tab (Claude Code)
 
-Not chat — this is Claude Code inside the app. Installs all 27 at once, with no
+Not chat — this is Claude Code inside the app. Installs all 28 at once, with no
 terminal: the two lines go into the ordinary message box.
 
 ```
@@ -165,13 +165,17 @@ Two forms both work:
 
 ### Automatic selection differs by host, on purpose
 
-In Claude Code every skill sets `disable-model-invocation: true`, so describing a
+In Claude Code every role and pipeline skill sets `disable-model-invocation: true`, so describing a
 design problem in prose will **not** auto-summon `/product-designer`. That is
 deliberate: automatic invocation selects by description keyword-matching, and
 testing showed that picks badly — "payments integration" pulled the Pricing
 Strategist, "release risk" pulled the Delivery Manager. You get selection
 explicitly with `/name`, or via [the routing brain](#the-routing-brain-optional-second-layer)
 when you don't know which discipline you want.
+
+The `/ppot` practice is the exception. Its natural-language phrases — such as
+“bring me up to speed”, “record our decision”, and “check this against the
+project truth” — are its intended interface, so it may be selected automatically.
 
 The Claude apps have no `/name` invocation at all, so Claude choosing is the only
 mechanism there. The ZIPs under [`download/`](./download) therefore ship with
@@ -182,7 +186,46 @@ Naming the role in your sentence is how you steer the choice.
 
 The persona persists across turns for the rest of the conversation. Invoke a different one to switch; start a fresh session to drop it.
 
-## The 27 skills
+## Project Point of Truth
+
+The suite includes a `/ppot` practice for consulting and maintaining a product’s
+`PPoT.md` — a concise, human-governed register of durable facts, decisions,
+constraints, assumptions, and learning.
+
+Every other product-team skill is compatible with it. When relevant, a skill:
+
+1. **pulls** established context from `PPoT.md` before working;
+2. preserves the difference between confirmed knowledge and uncertainty;
+3. **pushes** durable new knowledge back as a proposal after the work;
+4. waits for explicit approval before the PPoT is changed.
+
+The practice is available directly:
+
+```text
+/ppot brief
+/ppot ask What do we know about enterprise onboarding?
+/ppot decide We will release read-only sharing first
+/ppot check docs/new-feature-prd.md
+/ppot review
+```
+
+Natural language works too: “Bring me up to speed”, “Remember that users treat
+archive as reversible”, or “Check this PRD against the project truth”. The PPoT
+belongs in the consuming product repository; this plugin supplies the practice
+and starter template, not the project’s facts.
+
+**→ [How to use the Project Point of Truth](./docs/PPOT.md)**
+
+Contribution practices, entry types, approval rules, natural-language examples,
+and the pull/push handshake used by every skill.
+
+## The 28 skills
+
+### Shared project knowledge
+
+| Invoke | Use when |
+|---|---|
+| `/ppot` | Project briefings, facts, decisions, assumptions, durable learning, contradictions, knowledge reviews, and checking artefacts against project truth |
 
 ### Product and strategy
 
@@ -236,7 +279,7 @@ The persona persists across turns for the rest of the conversation. Invoke a dif
 | `/diagnose` | Root-cause analysis — reproduce → isolate → verify → fix |
 | `/design-critique` | Final-pass design review with a SHIP / SHIP_WITH_NOTES / HOLD decision |
 
-Two roles carry reference material that loads only when needed: `/security-specialist` (a nine-category audit cookbook and a health-data domain pack) and `/motion-designer` (standards, libraries and component-gallery intake).
+Three skills carry reference material that loads only when needed: `/security-specialist` (a nine-category audit cookbook and a health-data domain pack), `/motion-designer` (standards, libraries and component-gallery intake), and `/ppot` (entry schema and governance).
 
 ## Install options
 
@@ -246,7 +289,7 @@ exact error text. The summary:
 
 | Route | Command | You get |
 |---|---|---|
-| **Plugin** *(recommended)* | `/plugin install product-team` | All 27 skills **plus** the gate hook. Updatable with one command. No routing brain |
+| **Plugin** *(recommended)* | `/plugin install product-team` | All 28 skills **plus** the gate hook. Updatable with one command. No routing brain |
 | **Desktop app** | **+** → Plugins → Add plugin | The same, without a terminal |
 | **Cloud / web** | two keys in the repo's `.claude/settings.json` | The same, for everyone opening a cloud session on that repo |
 | **Routing only** | `install.sh --routing-only /path/to/project` | The routing brain alone, for when the plugin already supplies the skills |
@@ -269,7 +312,7 @@ It copies the skills, appends the routing brain to `CLAUDE.md` **with the paths 
 ### Which route
 
 - **Just want the skills?** Plugin — terminal, desktop app, or a committed `.claude/settings.json` for cloud sessions.
-- **Want role arbitration too?** Plugin *plus* `install.sh --routing-only`. Routing lives in `CLAUDE.md`, which is per-project, so no plugin can carry it. Use `--routing-only` rather than a full per-project install: the latter puts a second copy of all 27 skills on disk, which claims the bare `/name` and then goes stale independently of the plugin.
+- **Want role arbitration too?** Plugin *plus* `install.sh --routing-only`. Routing lives in `CLAUDE.md`, which is per-project, so no plugin can carry it. Use `--routing-only` rather than a full per-project install: the latter puts a second copy of all 28 skills on disk, which claims the bare `/name` and then goes stale independently of the plugin.
 - **Want it pinned and tracked in the consuming repo?** Submodule.
 - **On claude.ai or the desktop app's Chat tab?** Those are a different product from Claude Code — download a ZIP from [`download/`](./download) and upload it, per [INSTALL.md](./INSTALL.md#part-4--claude-for-chatting-browser-or-chat-tab).
 
@@ -283,7 +326,7 @@ Enterprise overrides personal, and personal overrides project. Plugin skills are
 
 ### Context cost, and how to turn it down
 
-Installing 27 skills is not free. Two different costs, and the second is the one that actually bites.
+Installing 28 skills is not free. Two different costs, and the second is the one that actually bites.
 
 **Always-on** — every skill's `name` and `description` are preloaded into the system prompt so the host knows what exists. That is **~2,300 tokens on every session**, including projects with nothing to do with product work. Nothing else loads until a skill is invoked.
 
@@ -459,8 +502,12 @@ product-team-skills/
 ├── .claude-plugin/
 │   ├── plugin.json                   # makes this an installable plugin
 │   └── marketplace.json              # makes the repo an addable marketplace
-├── skills/                           # all 27 skills, flat, one directory each
+├── skills/                           # all 28 skills, flat, one directory each
 │   ├── product-manager/SKILL.md
+│   ├── ppot/                         # project knowledge practice
+│   │   ├── SKILL.md
+│   │   ├── references/               # schema and governance
+│   │   └── assets/PPoT-template.md
 │   ├── motion-designer/
 │   │   ├── SKILL.md
 │   │   └── references/motion-resources.md
@@ -481,6 +528,7 @@ product-team-skills/
 ├── reference/                        # shared docs, deliberately not skills
 │   ├── project-adapter.md
 │   └── state-schema.md
+├── docs/PPOT.md                      # product-owner usage guide
 ├── routing.md                        # the routing brain
 ├── install.sh                        # filesystem install; --verify reports state
 ├── INSTALL.md                        # every install route, with troubleshooting
@@ -492,9 +540,9 @@ product-team-skills/
 ## Conventions
 
 - All skills use **UK English**.
-- Frontmatter carries `name` and `description` (the two fields the standard requires) plus `license`, `compatibility`, `disable-model-invocation`, and a `metadata` block with `version`, `persona_type`, `tags`, `intents` and `output_types`. Everything past the first two is this repo's own convention; hosts ignore what they do not recognise.
+- Every skill carries the standard `name` and `description`. Role and pipeline skills additionally use the repository's Claude-specific invocation and metadata fields. The PPoT practice keeps portable minimal frontmatter and supplies Codex UI metadata under `agents/openai.yaml`.
 - Keep skill bodies **under 500 lines**, per [Anthropic's authoring guidance](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). Past that, move detail into that skill's `references/` and link to it with a stated trigger for when to read it.
-- Every skill ends with `## Maintenance` listing its review triggers. Treat that as a versioning prompt: bump the skill's `version` whenever behaviour-shaping content changes.
+- Every skill ends with `## Maintenance` listing its review triggers. Treat that as a versioning prompt: bump role and pipeline skill metadata when their behaviour changes, and bump the plugin version when the shared PPoT practice changes.
 
 ## Versioning
 
