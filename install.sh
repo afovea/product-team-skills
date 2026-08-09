@@ -396,11 +396,20 @@ if [[ "$MODE" == "routing" ]]; then
     -e 's#| Skill file |#| Invoke |#g' \
     -e "s#the relevant files under \`\.claude/skills/\`#the relevant skill by name, e.g. \`${INVOKE}product-manager\`#g" \
     -e 's#place deeper role guidance in `\.claude/skills/`#leave the deeper role guidance in the installed skills#g' \
+    -e "s#\`\.claude/#\`$CFG_DIR/#g" \
     "$SUITE_ROOT/routing.md")"
 else
   # Rewrite the paths in routing.md to match where the files actually landed.
-  ROUTING="$(sed -e "s#\`\.claude/skills/#\`$SKILL_PREFIX/#g" "$SUITE_ROOT/routing.md")"
+  ROUTING="$(sed -e "s#\`\.claude/skills/#\`$SKILL_PREFIX/#g" \
+                 -e "s#\`\.claude/#\`$CFG_DIR/#g" \
+                 "$SUITE_ROOT/routing.md")"
 fi
+
+# Both branches end with a catch-all for any remaining `.claude/…` path, because
+# routing.md names more than the skills directory — the pipeline cache, for one —
+# and a path rewritten for one layout but not the other sends the agent looking
+# in a directory that layout never created. In the Claude layout the rule
+# rewrites `.claude/` to `.claude/`, so that output is unchanged.
 
 if [[ -f "$INSTR_PATH" ]] && grep -qF "$MARK_START" "$INSTR_PATH"; then
   # The routing text goes via a temp file, not stdin: stdin is already taken by

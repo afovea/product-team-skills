@@ -394,7 +394,7 @@ exact error text. The summary:
 | **Desktop app** | **+** → Plugins → Add plugin | The same, without a terminal |
 | **Cloud / web** | two keys in the repo's `.claude/settings.json` | The same, for everyone opening a cloud session on that repo |
 | **Routing only** | `install.sh --routing-only /path/to/project` | The routing brain alone, for when the plugin already supplies the skills |
-| **Per project** | `install.sh /path/to/project` | Skills in `<project>/.claude/skills/` **plus** the routing brain in its `CLAUDE.md` |
+| **Per project** | `install.sh /path/to/project` | Skills in `<project>/.claude/skills/` **plus** the routing brain in its `CLAUDE.md`. Add `--agents` for `.agents/skills/` and `AGENTS.md` |
 | **Personal** | `install.sh --personal` | Skills in `~/.claude/skills/` — every project. Skills only |
 | **Submodule** | `install.sh --submodule /path/to/project` | Per-project, pinned to a tag, symlinked so discovery still works |
 | **Claude apps** *(no terminal)* | download a ZIP from [`download/`](./download), upload it | The roles you upload, in claude.ai and the Chat tab. No routing brain, no hook |
@@ -409,12 +409,12 @@ cd product-team-skills
 ./install.sh /path/to/your-project
 ```
 
-It copies the skills, appends the routing brain to `CLAUDE.md` **with the paths already rewritten**, updates `.gitignore`, and seeds a pipeline adapter template. Re-running updates the routing block in place between its markers and leaves anything you wrote above it alone. Running it with no arguments prints the menu rather than guessing a target.
+It copies the skills, appends the routing brain to `CLAUDE.md` — or `AGENTS.md` with `--agents` — **with the paths and invocations already rewritten for that host**, updates `.gitignore`, and seeds a pipeline adapter template. Re-running updates the routing block in place between its markers and leaves anything you wrote above it alone. Running it with no arguments prints the menu rather than guessing a target.
 
 ### Which route
 
 - **Just want the skills?** Plugin — terminal, desktop app, or a committed `.claude/settings.json` for cloud sessions.
-- **Want role arbitration too?** Plugin *plus* `install.sh --routing-only`. Routing lives in `CLAUDE.md`, which is per-project, so no plugin can carry it. Use `--routing-only` rather than a full per-project install: the latter puts a second copy of all 28 skills on disk, which claims the bare `/name` and then goes stale independently of the plugin.
+- **Want role arbitration too?** Plugin *plus* `install.sh --routing-only` (add `--agents` on Codex). Routing lives in `CLAUDE.md` or `AGENTS.md`, which is per-project, so no plugin can carry it. Use `--routing-only` rather than a full per-project install: the latter puts a second copy of all 28 skills on disk, which claims the bare `/name` and then goes stale independently of the plugin.
 - **Want it pinned and tracked in the consuming repo?** Submodule.
 - **On claude.ai or the desktop app's Chat tab?** Those are a different product from Claude Code — download a ZIP from [`download/`](./download) and upload it, per [INSTALL.md](./INSTALL.md#part-4--claude-for-chatting-browser-or-chat-tab).
 
@@ -533,7 +533,7 @@ Claude Code in **WSL** is the one Claude Code surface without plugins — use a 
 
 ## The routing brain (optional second layer)
 
-[`routing.md`](./routing.md) goes in a project's `CLAUDE.md` and decides which role or squad a request belongs to, so you can ask in prose instead of picking a skill:
+[`routing.md`](./routing.md) goes in a project's `CLAUDE.md` — or its `AGENTS.md` for Codex — and decides which role or squad a request belongs to, so you can ask in prose instead of picking a skill:
 
 > "The error message when a payment fails is confusing. Rewrite it." → Content Designer
 > "This chart distinguishes four series by colour alone." → Accessibility Specialist

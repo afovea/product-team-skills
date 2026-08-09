@@ -204,8 +204,13 @@ AGENTS_GOT="$(find "$TMP/agents/.agents/skills" -maxdepth 2 -name SKILL.md 2>/de
   && ok "no .claude directory in an agents install" || bad "leaked a .claude directory"
 grep -q 'product-team-skills:start' "$TMP/agents/AGENTS.md" 2>/dev/null \
   && ok "routing brain in AGENTS.md" || bad "routing brain missing from AGENTS.md"
-! grep -q '\.claude/skills' "$TMP/agents/AGENTS.md" 2>/dev/null \
-  && ok "no paths pointing at the other layout" || bad "AGENTS.md names .claude paths"
+# Any `.claude` path, not just `.claude/skills` — routing.md also names the
+# pipeline cache, and that one slipped through a skills-only check once already.
+if grep -n '\.claude' "$TMP/agents/AGENTS.md" 2>/dev/null; then
+  bad "AGENTS.md still names .claude paths (see above)"
+else
+  ok "no paths pointing at the other layout"
+fi
 [ -f "$TMP/agents/.agents/pipeline-adapter.md" ] \
   && ok "pipeline adapter seeded in .agents/" || bad "pipeline adapter missing"
 
