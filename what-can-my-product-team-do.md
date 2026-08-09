@@ -4,11 +4,13 @@ This skills repository is designed to operate as more than a collection of speci
 
 The most useful way to think about the repository is therefore not **"which skills are available?"**, but **"what jobs can my product team undertake?"**
 
-At its broadest, the team can help move work through:
+At its broadest, the team can help move work through the full product cycle, which this repository treats as a **triple diamond**:
 
-> **Idea → Evidence → Strategy → Definition → Design → Architecture → Delivery → Quality Assurance → Launch → Measurement → Iteration**
+> **Discover → Define → Develop → Decide → Build → Deliver and learn**
 
-The capabilities below describe what can be achieved by orchestrating the appropriate skills around a product problem.
+Three diamonds — problem space, solution space, delivery space — each widening the options before narrowing them, and each closed by a gate that opens both ways: **Problem agreed**, **Approach agreed**, **Outcome evidenced**.
+
+The capabilities below describe what can be achieved by orchestrating the appropriate skills around a product problem. For which capability belongs at which phase, what the repeated ones do differently at each, and what each phase writes to the PPoT, see the **[capability map](./docs/capability-map.md)**.
 
 ---
 
@@ -780,4 +782,6 @@ Its greatest value is not the number of specialist skills available. It is the a
 
 The result is a system that can support the continuous loop of:
 
-> **Understand → Decide → Design → Build → Verify → Release → Measure → Learn → Repeat**
+> **Discover → Define → Develop → Decide → Build → Deliver and learn → Repeat**
+
+The loop genuinely closes. A health check at the end of Diamond 3 produces the prioritised list that becomes the next Discover, and the assumptions settled there are the ones the next Define will not have to argue about. That loop is the whole reason for keeping a Project Point of Truth at all.

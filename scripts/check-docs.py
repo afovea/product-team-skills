@@ -18,7 +18,13 @@ import re
 import sys
 from pathlib import Path
 
-DOCS = ["README.md", "INSTALL.md", "what-can-my-product-team-do.md", "docs/PPOT.md"]
+DOCS = [
+    "README.md",
+    "INSTALL.md",
+    "what-can-my-product-team-do.md",
+    "docs/PPOT.md",
+    "docs/capability-map.md",
+]
 ROOT = Path(__file__).resolve().parent.parent
 
 

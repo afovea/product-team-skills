@@ -9,6 +9,9 @@ Every role is project-agnostic, so the same suite works on any codebase without 
 **→ [What can my product team do?](./what-can-my-product-team-do.md)**  
 See the kinds of end-to-end product work these skills can undertake individually and in combination.
 
+**→ [Capability map](./docs/capability-map.md)**  
+Where each capability sits in the triple-diamond product cycle, what the eleven repeated ones do differently at each phase, and what each phase writes to the Project Point of Truth.
+
 ## Quick start
 
 **Find your row, then read that section.** Which Claude you are in decides the
@@ -423,6 +426,8 @@ Claude Code in **WSL** is the one Claude Code surface without plugins — use a 
 
 It also defines **six squads** for cross-functional work — Discovery, Definition, Delivery, Validation, Growth, Platform — because "is this ready to ship?" is not one discipline's call.
 
+Squads are not the six *phases* of the product cycle, despite three of the names colliding. A squad is who you need; a phase is where you are. [`docs/capability-map.md`](./docs/capability-map.md) maps one onto the other.
+
 Measured at **89.6% selection accuracy** across 16 cases (up from 70.8%). Two findings drove the improvement, both worth knowing if you edit it:
 
 - **Keyword collision beats persona overlap.** A single salient word drags a request to the wrong role. Where roles genuinely overlap, routing coped fine.
@@ -528,7 +533,9 @@ product-team-skills/
 ├── reference/                        # shared docs, deliberately not skills
 │   ├── project-adapter.md
 │   └── state-schema.md
-├── docs/PPOT.md                      # product-owner usage guide
+├── docs/
+│   ├── PPOT.md                       # product-owner usage guide
+│   └── capability-map.md             # capability → phase, and what each phase records
 ├── routing.md                        # the routing brain
 ├── install.sh                        # filesystem install; --verify reports state
 ├── INSTALL.md                        # every install route, with troubleshooting
