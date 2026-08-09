@@ -12,6 +12,40 @@ See the kinds of end-to-end product work these skills can undertake individually
 **→ [Capability map](./docs/capability-map.md)**  
 Where each capability sits in the triple-diamond product cycle, what the eleven repeated ones do differently at each phase, and what each phase writes to the Project Point of Truth.
 
+**→ [Project Point of Truth](#project-point-of-truth)**  
+The human-governed register of a product's durable facts, decisions, constraints and assumptions — read by every skill before it works, and proposed back to afterwards.
+
+**→ [The Figma board](https://www.figma.com/community/file/1668354152302142589/afoveas-product-delivery-team-skills)**  
+The same model as a FigJam workshop kit: a run-sheet per capability, timed zones, and the gates that close each diamond.
+
+## Contents
+
+- [Quick start](#quick-start) — install by surface; find your row before you copy anything
+  - [A · Claude web (`claude.ai` in a browser)](#a--claude-web-claudeai-in-a-browser)
+  - [B · Claude app, Chat tab](#b--claude-app-chat-tab)
+  - [C · Claude app, Code tab (Claude Code)](#c--claude-app-code-tab-claude-code)
+  - [D · Claude Code in a terminal](#d--claude-code-in-a-terminal)
+  - [E · Claude Code on the web (cloud sessions)](#e--claude-code-on-the-web-cloud-sessions)
+- [Invoking a skill](#invoking-a-skill) — naming a role in chat, `/name` in Claude Code, and why automatic selection differs by host
+- [Project Point of Truth](#project-point-of-truth) — the `/ppot` practice and the pull/push handshake every skill uses
+- [The 28 skills](#the-28-skills) — every role and pipeline skill, grouped, with when to reach for it
+- [The Figma board](#the-figma-board) — the FigJam companion a team runs the work on
+- [Install options](#install-options) — all routes compared, and what each one actually gives you
+  - [Which route](#which-route)
+  - [Precedence and duplicates](#precedence-and-duplicates)
+  - [Context cost, and how to turn it down](#context-cost-and-how-to-turn-it-down)
+  - [Migrating from the old repo](#migrating-from-the-old-repo)
+  - [Compatibility](#compatibility)
+- [The routing brain (optional second layer)](#the-routing-brain-optional-second-layer) — role arbitration from prose, and the six squads
+- [Delivery pipeline](#delivery-pipeline) — `/run-pipeline`, the project adapter, and gate enforcement
+  - [Verified by running, not reading](#verified-by-running-not-reading)
+  - [Enforcing the gates](#enforcing-the-gates)
+- [Repository layout](#repository-layout) — what sits where, and why `reference/` is not a skill
+- [Conventions](#conventions) — authoring rules for skills in this repo
+- [Versioning](#versioning) — what counts as major, minor and patch
+- [Licence](#licence)
+- [Contributing](#contributing)
+
 ## Quick start
 
 **Find your row, then read that section.** Which Claude you are in decides the
@@ -129,6 +163,8 @@ what to do when it does not work.
 
 > **Installed from the old `ProductTeam-skills` repo?** It has moved here — see [Migrating](#migrating-from-the-old-repo).
 
+[↑ Back to contents](#contents)
+
 ## Invoking a skill
 
 **Whichever route you installed by, give the role the actual task in the same
@@ -189,6 +225,8 @@ Naming the role in your sentence is how you steer the choice.
 
 The persona persists across turns for the rest of the conversation. Invoke a different one to switch; start a fresh session to drop it.
 
+[↑ Back to contents](#contents)
+
 ## Project Point of Truth
 
 The suite includes a `/ppot` practice for consulting and maintaining a product’s
@@ -221,6 +259,8 @@ and starter template, not the project’s facts.
 
 Contribution practices, entry types, approval rules, natural-language examples,
 and the pull/push handshake used by every skill.
+
+[↑ Back to contents](#contents)
 
 ## The 28 skills
 
@@ -269,7 +309,7 @@ and the pull/push handshake used by every skill.
 | `/qa-engineer` | Test planning, regression, bug reporting, durable proof of verification |
 | `/delivery-manager` | Delivery planning, dependencies, ceremonies — risk to *schedule and flow* |
 
-### Delivery pipeline
+### Delivery pipeline skills
 
 | Invoke | Use when |
 |---|---|
@@ -283,6 +323,22 @@ and the pull/push handshake used by every skill.
 | `/design-critique` | Final-pass design review with a SHIP / SHIP_WITH_NOTES / HOLD decision |
 
 Three skills carry reference material that loads only when needed: `/security-specialist` (a nine-category audit cookbook and a health-data domain pack), `/motion-designer` (standards, libraries and component-gallery intake), and `/ppot` (entry schema and governance).
+
+[↑ Back to contents](#contents)
+
+## The Figma board
+
+**→ [Afovea's Product Delivery Team Skills — Figma Community](https://www.figma.com/community/file/1668354152302142589/afoveas-product-delivery-team-skills)**
+
+A FigJam board that turns this repo into something a team can run in a room. The skills supply the judgement; the board supplies the order, the timings and the checkpoints. Duplicate it into your drafts and work down it.
+
+**An introduction page** covers how the board and the repo fit together, the 28 skills and how to invoke each one, the Project Point of Truth practice, and the product cycle as a **triple diamond** — Discover → Define → Develop → Decide → Build → Deliver and learn, closed by three gates: **Problem agreed**, **Approach agreed**, **Outcome evidenced**. A detail panel per phase names each capability that earns its keep there, when to reach for it, which roles are involved, what comes out, and what it writes to the PPoT.
+
+**Six further pages, one per phase,** hold the working boards. Each capability gets a run-sheet built as numbered zones with a time budget and a stated output, so a session has a shape rather than a blank canvas. Gates get run-sheets of their own, ending in a signed decision that can send the work back a diamond as readily as forward.
+
+It is the visual counterpart of [`docs/capability-map.md`](./docs/capability-map.md) — the same model, laid out to be filled in rather than read. Neither one installs anything: the skills still come from a route in [Install options](#install-options).
+
+[↑ Back to contents](#contents)
 
 ## Install options
 
@@ -416,6 +472,8 @@ What survives on each surface:
 
 Claude Code in **WSL** is the one Claude Code surface without plugins — use a filesystem install there.
 
+[↑ Back to contents](#contents)
+
 ## The routing brain (optional second layer)
 
 [`routing.md`](./routing.md) goes in a project's `CLAUDE.md` and decides which role or squad a request belongs to, so you can ask in prose instead of picking a skill:
@@ -432,6 +490,8 @@ Measured at **89.6% selection accuracy** across 16 cases (up from 70.8%). Two fi
 
 - **Keyword collision beats persona overlap.** A single salient word drags a request to the wrong role. Where roles genuinely overlap, routing coped fine.
 - **The roles table outweighs the prose rules below it.** One case failed 0/3 across three prose edits, then passed when two words changed in the table. Put load-bearing distinctions in the table.
+
+[↑ Back to contents](#contents)
 
 ## Delivery pipeline
 
@@ -500,6 +560,8 @@ test: npm test
 
 Scratch files live in `.claude/.gate/`, which excludes itself from version control. Nothing needs adding to a consuming project's `.gitignore`.
 
+[↑ Back to contents](#contents)
+
 ## Repository layout
 
 ```
@@ -544,12 +606,16 @@ product-team-skills/
 
 `reference/` holds documents that five pipeline skills share. They are not skills, so they sit outside `skills/` rather than being forced into a directory that pretends otherwise.
 
+[↑ Back to contents](#contents)
+
 ## Conventions
 
 - All skills use **UK English**.
 - Every skill carries the standard `name` and `description`. Role and pipeline skills additionally use the repository's Claude-specific invocation and metadata fields. The PPoT practice keeps portable minimal frontmatter and supplies Codex UI metadata under `agents/openai.yaml`.
 - Keep skill bodies **under 500 lines**, per [Anthropic's authoring guidance](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). Past that, move detail into that skill's `references/` and link to it with a stated trigger for when to read it.
 - Every skill ends with `## Maintenance` listing its review triggers. Treat that as a versioning prompt: bump role and pipeline skill metadata when their behaviour changes, and bump the plugin version when the shared PPoT practice changes.
+
+[↑ Back to contents](#contents)
 
 ## Versioning
 
@@ -561,9 +627,13 @@ Semver, tagged `v<MAJOR>.<MINOR>.<PATCH>` on `main`.
 
 Consuming projects should pin to a tag and update deliberately.
 
+[↑ Back to contents](#contents)
+
 ## Licence
 
 [MIT](./LICENSE). Use it, fork it, adapt it. Attribution appreciated but the licence only requires the copyright notice.
+
+[↑ Back to contents](#contents)
 
 ## Contributing
 
@@ -573,3 +643,5 @@ Issues and pull requests welcome.
 - Update [routing.md](./routing.md): a row in the relevant table, squad memberships if cross-functional, and an entry in the specialist-routing examples. **The table matters more than the prose** — see the routing findings above.
 - Bump the skill's frontmatter `version` on behaviour-shaping changes.
 - Tag a release after merge to `main`.
+
+[↑ Back to contents](#contents)
