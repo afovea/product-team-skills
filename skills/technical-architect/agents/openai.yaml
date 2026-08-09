@@ -1,0 +1,6 @@
+interface:
+  display_name: "Technical Architect"
+  short_description: "System design, integration strategy, scalability, standing-dependency evaluation"
+
+policy:
+  allow_implicit_invocation: false

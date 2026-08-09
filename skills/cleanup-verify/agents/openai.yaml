@@ -1,0 +1,6 @@
+interface:
+  display_name: "Cleanup Verify"
+  short_description: "Post-run sweep: regenerate artefacts, rebuild, run the gate chain, report drift"
+
+policy:
+  allow_implicit_invocation: false

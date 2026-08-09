@@ -1,0 +1,6 @@
+interface:
+  display_name: "Growth Product Marketing Manager"
+  short_description: "Adoption, activation, messaging, funnel, CRO, content strategy, SEO"
+
+policy:
+  allow_implicit_invocation: false

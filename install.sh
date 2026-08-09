@@ -40,6 +40,11 @@ SUITE_URL="https://github.com/afovea/product-team-skills.git"
 SUITE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODE=""
 TARGET=""
+# Which on-disk layout to write. `claude` is the default and is unchanged from
+# every previous version; `agents` is the open-standard layout that Codex and
+# other SKILL.md hosts discover. The mode axis (copy/personal/submodule/routing)
+# is orthogonal to it, so every mode works in either layout.
+LAYOUT="claude"
 
 # How many skills this repo actually ships. Counted from the source, never from
 # the destination: a destination may already hold skills that are nothing to do
@@ -82,6 +87,13 @@ Usage:
     ./install.sh --verify             Report what is installed where
     ./install.sh --help               This message
 
+Add --agents to any of the above to write the open-standard layout instead:
+skills into .agents/skills/ and the routing brain into AGENTS.md, which is what
+Codex and other SKILL.md hosts read. Invocation there is $name, not /name.
+
+    ./install.sh --agents --personal        Skills into ~/.agents/skills
+    ./install.sh --agents /path/to/project  Skills + routing brain, Codex layout
+
 No target is assumed. Pass a path, or '.' for the current directory.
 
 Full guide, including the Claude desktop app, cloud sessions and claude.ai:
@@ -96,11 +108,21 @@ while [[ $# -gt 0 ]]; do
     --personal)  MODE="personal"; shift ;;
     --routing-only) MODE="routing"; shift ;;
     --verify|--check) MODE="verify"; shift ;;
+    --agents)    LAYOUT="agents"; shift ;;
     -h|--help)   usage; exit 0 ;;
     -*)          echo "error: unknown option '$1'" >&2; echo >&2; usage >&2; exit 1 ;;
     *)           TARGET="$1"; shift ;;
   esac
 done
+
+# Everything below refers to the layout through these four, so adding a host
+# later is a matter of adding a branch here rather than hunting for hardcoded
+# paths. The `claude` values are exactly what this script always used.
+if [[ "$LAYOUT" == "agents" ]]; then
+  CFG_DIR=".agents"; INSTR_FILE="AGENTS.md"; INVOKE='$'; HOST="Codex"
+else
+  CFG_DIR=".claude"; INSTR_FILE="CLAUDE.md"; INVOKE='/'; HOST="Claude Code"
+fi
 
 # ------------------------------------------------------------------- verify
 
@@ -175,6 +197,39 @@ if [[ "$MODE" == "verify" ]]; then
     echo "  STALE: $TARGET/.claude/skills/pipeline is a v2.x leftover — rm -r it"
   echo
 
+  # The open-standard layout, reported separately because a machine can hold
+  # both. Expanded only when something is actually there, so a Claude-only
+  # report does not grow a block of "not installed" lines.
+  AGENTS_PERSONAL=0
+  AGENTS_PROJECT=0
+  for d in "$SUITE_ROOT"/skills/*/; do
+    [[ -f "$HOME/.agents/skills/$(basename "$d")/SKILL.md" ]] && AGENTS_PERSONAL=$((AGENTS_PERSONAL + 1))
+    [[ -f "$TARGET/.agents/skills/$(basename "$d")/SKILL.md" ]] && AGENTS_PROJECT=$((AGENTS_PROJECT + 1))
+  done
+  echo "Open-standard layout (.agents/skills — Codex and other SKILL.md hosts)"
+  if [[ "$AGENTS_PERSONAL" -eq 0 && "$AGENTS_PROJECT" -eq 0 ]]; then
+    echo "  not installed"
+  else
+    if [[ "$AGENTS_PERSONAL" -gt 0 ]]; then
+      echo "  personal (~/.agents/skills): $AGENTS_PERSONAL/$EXPECTED suite skills present"
+      [[ "$AGENTS_PERSONAL" -lt "$EXPECTED" ]] && \
+        echo "  INCOMPLETE — re-run: ./install.sh --agents --personal"
+      FOUND=$((FOUND + 1))
+    fi
+    if [[ "$AGENTS_PROJECT" -gt 0 ]]; then
+      echo "  project ($TARGET/.agents/skills): $AGENTS_PROJECT/$EXPECTED suite skills present"
+      [[ "$AGENTS_PROJECT" -lt "$EXPECTED" ]] && \
+        echo "  INCOMPLETE — re-run: ./install.sh --agents '$TARGET'"
+      if [[ -f "$TARGET/AGENTS.md" ]] && grep -qF "<!-- product-team-skills:start -->" "$TARGET/AGENTS.md"; then
+        echo "  routing brain: present in AGENTS.md"
+      else
+        echo "  routing brain: MISSING — re-run: ./install.sh --agents '$TARGET'"
+      fi
+      FOUND=$((FOUND + 1))
+    fi
+  fi
+  echo
+
   echo "Cloud sessions (.claude/settings.json in $TARGET)"
   if [[ -f "$TARGET/.claude/settings.json" ]] && grep -q 'product-team@productteam-skills' "$TARGET/.claude/settings.json" 2>/dev/null; then
     echo "  declared — cloud sessions on this repo will install the plugin"
@@ -211,16 +266,16 @@ MODE="${MODE:-copy}"
 # Note the cost: personal skills load their metadata in every project you open,
 # including ones with nothing to do with product work.
 if [[ "$MODE" == "personal" ]]; then
-  DEST="$HOME/.claude/skills"
+  DEST="$HOME/$CFG_DIR/skills"
   mkdir -p "$DEST"
   cp -R "$SUITE_ROOT"/skills/*  "$DEST/"
   warn_stale_layout "$DEST"
   echo "Installed to $DEST"
   echo "  $(suite_skill_count) skills"
   echo
-  echo "Available in every project as /<name>, e.g. /product-manager."
+  echo "Available in every project as ${INVOKE}<name>, e.g. ${INVOKE}product-manager."
   echo "The routing brain is a per-project concern — run this without --personal"
-  echo "in a project to add it to that project's CLAUDE.md."
+  echo "in a project to add it to that project's $INSTR_FILE."
   echo
   echo "Confirm with:  ./install.sh --verify"
   exit 0
@@ -262,14 +317,15 @@ fi
 
 # python3 is only needed to rewrite an existing routing block in place. Fail
 # here with the reason rather than part-way through a half-applied install.
-if [[ -f "$TARGET/CLAUDE.md" ]] && grep -qF "<!-- product-team-skills:start -->" "$TARGET/CLAUDE.md"; then
-  require python3 "It updates the routing block already in $TARGET/CLAUDE.md. Install Python 3, or delete that block to have it appended fresh."
+if [[ -f "$TARGET/$INSTR_FILE" ]] && grep -qF "<!-- product-team-skills:start -->" "$TARGET/$INSTR_FILE"; then
+  require python3 "It updates the routing block already in $TARGET/$INSTR_FILE. Install Python 3, or delete that block to have it appended fresh."
 fi
 
 echo "Installing product-team-skills"
 echo "  from:  $SUITE_ROOT"
 echo "  into:  $TARGET"
 echo "  mode:  $MODE"
+echo "  host:  $HOST ($CFG_DIR/skills, $INSTR_FILE, ${INVOKE}name)"
 echo
 
 # ---------------------------------------------------------------- place files
@@ -286,58 +342,59 @@ elif [[ "$MODE" == "submodule" ]]; then
     echo "error: submodule mode needs '$TARGET' to be a git repository." >&2
     echo "       Run 'git init' there first, or use: ./install.sh '$TARGET'" >&2
     exit 1; }
-  if [[ -e "$TARGET/.claude/skills-vendor" ]]; then
-    echo "  .claude/skills-vendor already exists — leaving it alone"
+  if [[ -e "$TARGET/$CFG_DIR/skills-vendor" ]]; then
+    echo "  $CFG_DIR/skills-vendor already exists — leaving it alone"
   else
-    git -C "$TARGET" submodule add -q "$SUITE_URL" .claude/skills-vendor
+    git -C "$TARGET" submodule add -q "$SUITE_URL" "$CFG_DIR/skills-vendor"
     LATEST_TAG="$(git -C "$SUITE_ROOT" tag -l 'v*' --sort=-v:refname | head -1)"
     if [[ -n "$LATEST_TAG" ]]; then
-      git -C "$TARGET/.claude/skills-vendor" checkout -q "$LATEST_TAG"
+      git -C "$TARGET/$CFG_DIR/skills-vendor" checkout -q "$LATEST_TAG"
       echo "  pinned to $LATEST_TAG"
     fi
   fi
-  # Skills are discovered under .claude/skills/, so symlink each vendored
+  # Skills are discovered under <layout>/skills/, so symlink each vendored
   # skill directory into place. Without this the submodule gives you routing
   # but no discovery — the files exist where nothing looks for them.
-  mkdir -p "$TARGET/.claude/skills"
-  for d in "$TARGET"/.claude/skills-vendor/skills/*/; do
+  mkdir -p "$TARGET/$CFG_DIR/skills"
+  for d in "$TARGET/$CFG_DIR"/skills-vendor/skills/*/; do
     n="$(basename "$d")"
-    [[ -e "$TARGET/.claude/skills/$n" ]] || \
-      ln -s "../skills-vendor/skills/$n" "$TARGET/.claude/skills/$n"
+    [[ -e "$TARGET/$CFG_DIR/skills/$n" ]] || \
+      ln -s "../skills-vendor/skills/$n" "$TARGET/$CFG_DIR/skills/$n"
   done
-  echo "  symlinked skill directories into .claude/skills/ for discovery"
-  SKILL_PREFIX=".claude/skills"
+  echo "  symlinked skill directories into $CFG_DIR/skills/ for discovery"
+  SKILL_PREFIX="$CFG_DIR/skills"
 else
-  mkdir -p "$TARGET/.claude/skills"
+  mkdir -p "$TARGET/$CFG_DIR/skills"
   # Directory-per-skill, each containing SKILL.md and any references/.
   # No trailing slash on the glob: `cp -R src/*/ dest/` copies directory
   # *contents*, which collapses every skill onto one SKILL.md.
-  cp -R "$SUITE_ROOT"/skills/*     "$TARGET/.claude/skills/"
+  cp -R "$SUITE_ROOT"/skills/*     "$TARGET/$CFG_DIR/skills/"
   # Shared pipeline docs live outside skills/ so they are not mistaken for one.
-  mkdir -p "$TARGET/.claude/reference"
-  cp "$SUITE_ROOT"/reference/*.md  "$TARGET/.claude/reference/"
+  mkdir -p "$TARGET/$CFG_DIR/reference"
+  cp "$SUITE_ROOT"/reference/*.md  "$TARGET/$CFG_DIR/reference/"
   echo "  copied $(suite_skill_count) skills,"\
        "$(find "$SUITE_ROOT/skills" -path '*/references/*.md' | wc -l | tr -d ' ') references,"\
        "$(ls "$SUITE_ROOT/reference"/*.md | wc -l | tr -d ' ') shared docs"
-  SKILL_PREFIX=".claude/skills"
+  SKILL_PREFIX="$CFG_DIR/skills"
 fi
 
-[[ "$MODE" == "routing" ]] || warn_stale_layout "$TARGET/.claude/skills"
+[[ "$MODE" == "routing" ]] || warn_stale_layout "$TARGET/$CFG_DIR/skills"
 
-# ------------------------------------------------------- routing into CLAUDE.md
+# -------------------------------------------- routing into the instructions file
 
 MARK_START="<!-- product-team-skills:start -->"
 MARK_END="<!-- product-team-skills:end -->"
-CLAUDE_MD="$TARGET/CLAUDE.md"
+INSTR_PATH="$TARGET/$INSTR_FILE"
 
 if [[ "$MODE" == "routing" ]]; then
   # There are no skill files to point at — the skills come from the plugin. Turn
   # the "Skill file" column into the invocation you actually type, so the routing
-  # table names something that exists.
+  # table names something that exists. routing.md is written Claude-shaped, so
+  # the patterns match `.claude/...` here whatever layout is being written.
   ROUTING="$(sed \
-    -e 's#`\.claude/skills/\([a-z0-9-]*\)/SKILL\.md`#`/\1`#g' \
+    -e "s#\`\.claude/skills/\([a-z0-9-]*\)/SKILL\.md\`#\`${INVOKE}\1\`#g" \
     -e 's#| Skill file |#| Invoke |#g' \
-    -e 's#the relevant files under `\.claude/skills/`#the relevant skill by name, e.g. `/product-manager`#g' \
+    -e "s#the relevant files under \`\.claude/skills/\`#the relevant skill by name, e.g. \`${INVOKE}product-manager\`#g" \
     -e 's#place deeper role guidance in `\.claude/skills/`#leave the deeper role guidance in the installed skills#g' \
     "$SUITE_ROOT/routing.md")"
 else
@@ -345,13 +402,13 @@ else
   ROUTING="$(sed -e "s#\`\.claude/skills/#\`$SKILL_PREFIX/#g" "$SUITE_ROOT/routing.md")"
 fi
 
-if [[ -f "$CLAUDE_MD" ]] && grep -qF "$MARK_START" "$CLAUDE_MD"; then
+if [[ -f "$INSTR_PATH" ]] && grep -qF "$MARK_START" "$INSTR_PATH"; then
   # The routing text goes via a temp file, not stdin: stdin is already taken by
   # the heredoc carrying the script, and supplying both silently feeds the
   # markdown to python as its source.
   ROUTING_TMP="$(mktemp)"
   printf '%s' "$ROUTING" > "$ROUTING_TMP"
-  python3 - "$CLAUDE_MD" "$MARK_START" "$MARK_END" "$ROUTING_TMP" <<'PY'
+  python3 - "$INSTR_PATH" "$MARK_START" "$MARK_END" "$ROUTING_TMP" <<'PY'
 import sys, pathlib
 path, start, end, block_file = sys.argv[1:5]
 block = pathlib.Path(block_file).read_text()
@@ -361,13 +418,13 @@ _, _, tail = rest.partition(end)
 p.write_text(f"{head}{start}\n{block}\n{end}{tail}")
 PY
   rm -f "$ROUTING_TMP"
-  echo "  updated existing routing block in CLAUDE.md"
+  echo "  updated existing routing block in $INSTR_FILE"
 else
-  { [[ -f "$CLAUDE_MD" ]] && printf '\n'; printf '%s\n%s\n%s\n' "$MARK_START" "$ROUTING" "$MARK_END"; } >> "$CLAUDE_MD"
-  echo "  appended routing block to CLAUDE.md"
+  { [[ -f "$INSTR_PATH" ]] && printf '\n'; printf '%s\n%s\n%s\n' "$MARK_START" "$ROUTING" "$MARK_END"; } >> "$INSTR_PATH"
+  echo "  appended routing block to $INSTR_FILE"
 fi
 
-# Routing-only touches nothing but CLAUDE.md — no skills on disk to ignore, no
+# Routing-only touches nothing but the instructions file — no skills on disk to ignore, no
 # pipeline adapter, because the pipeline skills come from the plugin.
 if [[ "$MODE" == "routing" ]]; then
   echo
@@ -377,29 +434,38 @@ if [[ "$MODE" == "routing" ]]; then
   echo "       The error message when a payment fails is confusing. Rewrite it."
   echo "     Claude should reach for the Content Designer."
   echo
-  echo "Put project-specific context ABOVE the routing block in CLAUDE.md."
+  echo "Put project-specific context ABOVE the routing block in $INSTR_FILE."
   echo "This assumes the skills themselves are installed. If they are not:"
-  echo "  /plugin marketplace add afovea/product-team-skills"
-  echo "  /plugin install product-team"
+  if [[ "$LAYOUT" == "agents" ]]; then
+    echo "  ./install.sh --agents '$TARGET'   (or install the plugin in Codex)"
+  else
+    echo "  /plugin marketplace add afovea/product-team-skills"
+    echo "  /plugin install product-team"
+  fi
   exit 0
 fi
 
 # ------------------------------------------------------------------ gitignore
 
 GI="$TARGET/.gitignore"
+# Names the host whose state this is, so the line an existing Claude install
+# already wrote stays word-for-word what it was.
+IGNORE_NOTE="Claude Code project state"
+[[ "$LAYOUT" == "agents" ]] && IGNORE_NOTE="Agent project state"
 if [[ "$MODE" == "submodule" ]]; then
-  grep -qF '!.claude/skills-vendor/' "$GI" 2>/dev/null || {
-    printf '\n# Claude Code project state. The skills suite is the tracked submodule below.\n.claude/*\n!.claude/skills-vendor/\n' >> "$GI"
+  grep -qF "!$CFG_DIR/skills-vendor/" "$GI" 2>/dev/null || {
+    printf '\n# %s. The skills suite is the tracked submodule below.\n%s/*\n!%s/skills-vendor/\n' \
+      "$IGNORE_NOTE" "$CFG_DIR" "$CFG_DIR" >> "$GI"
     echo "  updated .gitignore (keeps the submodule tracked)"; }
 else
-  grep -qE '^\.claude/?$' "$GI" 2>/dev/null || {
-    printf '\n# Claude Code project state, including the copied skills suite.\n.claude/\n' >> "$GI"
+  grep -qE "^\\$CFG_DIR/?$" "$GI" 2>/dev/null || {
+    printf '\n# %s, including the copied skills suite.\n%s/\n' "$IGNORE_NOTE" "$CFG_DIR" >> "$GI"
     echo "  updated .gitignore"; }
 fi
 
 # ------------------------------------------------------------------- adapter
 
-ADAPTER="$TARGET/.claude/pipeline-adapter.md"
+ADAPTER="$TARGET/$CFG_DIR/pipeline-adapter.md"
 if [[ -e "$ADAPTER" ]]; then
   echo "  pipeline adapter already present — leaving it alone"
 else
@@ -407,19 +473,24 @@ else
   # above it here, so its sibling link has to be rewritten on the way in.
   sed 's#](\./state-schema\.md)#](./reference/state-schema.md)#g' \
     "$SUITE_ROOT/reference/project-adapter.md" > "$ADAPTER"
-  echo "  seeded .claude/pipeline-adapter.md (template — fill it in)"
+  echo "  seeded $CFG_DIR/pipeline-adapter.md (template — fill it in)"
 fi
 
 echo
 echo "Done. Confirm it worked:"
-echo "  1. cd '$TARGET' && claude"
-echo "  2. Type '/product-' — the roles should autocomplete."
+if [[ "$LAYOUT" == "agents" ]]; then
+  echo "  1. cd '$TARGET' && codex"
+  echo "  2. Type '\$product-' — the roles should autocomplete."
+else
+  echo "  1. cd '$TARGET' && claude"
+  echo "  2. Type '/product-' — the roles should autocomplete."
+fi
 echo "     Nothing there? Run ./install.sh --verify, then see INSTALL.md."
 echo
 echo "Then:"
-echo "  - Fill in .claude/pipeline-adapter.md with this project's commands and gates."
+echo "  - Fill in $CFG_DIR/pipeline-adapter.md with this project's commands and gates."
 echo "    Without it the pipeline still runs, discovering commands from your"
 echo "    manifests and CI config, but it has to guess."
-echo "  - Put project-specific context ABOVE the routing block in CLAUDE.md."
+echo "  - Put project-specific context ABOVE the routing block in $INSTR_FILE."
 echo "  - Give a role the task in the same message:"
-echo "      /product-manager Turn this request into a delivery-ready ticket."
+echo "      ${INVOKE}product-manager Turn this request into a delivery-ready ticket."

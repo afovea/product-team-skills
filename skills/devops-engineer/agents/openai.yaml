@@ -1,0 +1,6 @@
+interface:
+  display_name: "DevOps Engineer"
+  short_description: "CI/CD, environments, deployment and rollback, observability — risk in the running system"
+
+policy:
+  allow_implicit_invocation: false

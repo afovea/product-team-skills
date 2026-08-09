@@ -1,0 +1,6 @@
+interface:
+  display_name: "Diagnose"
+  short_description: "Root-cause analysis — reproduce → isolate → verify → fix"
+
+policy:
+  allow_implicit_invocation: false

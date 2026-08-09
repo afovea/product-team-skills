@@ -1,0 +1,6 @@
+interface:
+  display_name: "Close Chunk"
+  short_description: "Verifying a chunk against its acceptance criteria"
+
+policy:
+  allow_implicit_invocation: false

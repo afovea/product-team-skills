@@ -1,0 +1,6 @@
+interface:
+  display_name: "Security Specialist"
+  short_description: "Threat modelling, audits, auth/RLS review, DPIA, supply chain and licence boundaries, AI safety"
+
+policy:
+  allow_implicit_invocation: false

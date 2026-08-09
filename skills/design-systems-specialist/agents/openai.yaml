@@ -1,0 +1,6 @@
+interface:
+  display_name: "Design Systems Specialist"
+  short_description: "Components, tokens, theming, UI foundation choice, component source intake"
+
+policy:
+  allow_implicit_invocation: false

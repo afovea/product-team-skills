@@ -1,0 +1,6 @@
+interface:
+  display_name: "Content Designer"
+  short_description: "UX writing, labels, errors, onboarding, comprehension"
+
+policy:
+  allow_implicit_invocation: false

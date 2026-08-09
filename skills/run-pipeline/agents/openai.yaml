@@ -1,0 +1,6 @@
+interface:
+  display_name: "Run Pipeline"
+  short_description: "Start here for any coding task. Classifies Small / Medium / Large and dispatches"
+
+policy:
+  allow_implicit_invocation: false

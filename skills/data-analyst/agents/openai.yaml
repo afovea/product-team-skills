@@ -1,0 +1,6 @@
+interface:
+  display_name: "Data Analyst"
+  short_description: "Metrics, dashboards, funnels, experiments, behavioural evidence"
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Motion Designer"
+  short_description: "Animation, transitions, micro-interactions, pointer effects, ambient/WebGL backgrounds, motion tokens, reduced motion, animation performance"
+
+policy:
+  allow_implicit_invocation: false

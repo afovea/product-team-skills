@@ -1,0 +1,6 @@
+interface:
+  display_name: "Product Manager"
+  short_description: "Value, scope, outcomes, prioritisation, PRDs, backlog structure"
+
+policy:
+  allow_implicit_invocation: false

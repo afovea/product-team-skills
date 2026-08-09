@@ -1,0 +1,6 @@
+interface:
+  display_name: "Execute Chunk"
+  short_description: "Implementing one approved chunk with scoped edits and targeted validation"
+
+policy:
+  allow_implicit_invocation: false

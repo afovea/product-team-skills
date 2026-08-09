@@ -1,0 +1,6 @@
+interface:
+  display_name: "Product Strategist"
+  short_description: "Market positioning, vision, strategic bets, competitive framing"
+
+policy:
+  allow_implicit_invocation: false

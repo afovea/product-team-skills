@@ -1,0 +1,6 @@
+interface:
+  display_name: "Shape Task"
+  short_description: "Decomposing a brief into requirements, strategy and chunks"
+
+policy:
+  allow_implicit_invocation: false
