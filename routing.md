@@ -67,6 +67,31 @@ For every other substantial product-team task, apply the PPoT handshake embedded
 
 Use squads when the work requires more than one discipline.
 
+### Squads are not phases
+
+A squad is **who you need**. A phase is **where you are** in the product cycle. They are
+different axes, and three of the names collide, so do not treat them as interchangeable.
+
+The product cycle is a **triple diamond**: problem space (**Discover** → **Define**), solution
+space (**Develop** → **Decide**), delivery space (**Build** → **Deliver and learn**). Each
+diamond widens the options before narrowing them, and each closes with a gate that opens both
+ways — Problem agreed, Approach agreed, Outcome evidenced. Sending work back through a gate is
+a normal outcome, not a failure.
+
+When someone names a phase, route on this:
+
+| Phase | Squads it typically calls |
+|---|---|
+| Discover | Discovery |
+| Define | Definition, Discovery |
+| Develop | Platform, Definition |
+| Decide | Definition, Validation, Platform |
+| Build | Delivery, Platform |
+| Deliver and learn | Growth, Validation |
+
+Growth and Platform are cross-cutting. They serve whichever phase needs them rather than
+belonging to one.
+
 ### Discovery Squad
 
 Use when:
