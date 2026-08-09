@@ -18,6 +18,9 @@ The human-governed register of a product's durable facts, decisions, constraints
 **→ [The Figma board](https://www.figma.com/community/file/1668354152302142589/afoveas-product-delivery-team-skills)**  
 The same model as a FigJam workshop kit: a run-sheet per capability, timed zones, and the gates that close each diamond.
 
+**→ [Running the enablement session](./docs/enablement-session.md)**  
+Introducing the suite to a product design team and then to the wider product team — run of show, why the deck is ordered as it is, and what people push back on.
+
 ## Contents
 
 - [Quick start](#quick-start) — install by surface; find your row before you copy anything
