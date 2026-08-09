@@ -527,6 +527,8 @@ What survives on each surface:
 
 Gate enforcement needs a host with hooks. Claude Code and Codex both have a `Stop` event that a hook can refuse, and the same script serves both. Where hooks do not exist, the pipeline skills still run and still report a failing gate — they just cannot be stopped by one.
 
+**Observed on Codex**, not inferred from the spec: installed to `~/.agents/skills/`, the roles appear in the `$` picker carrying the display names and descriptions from their `agents/openai.yaml`, and a fresh session handed a design problem in prose answers it directly rather than summoning a role — so `allow_implicit_invocation: false` does what it claims. The extra frontmatter fields these skills carry beyond `name` and `description` are ignored rather than rejected. The `Stop` hook is the one part shared by both hosts that has so far only been exercised on Claude Code.
+
 Claude Code in **WSL** is the one Claude Code surface without plugins — use a filesystem install there.
 
 [↑ Back to contents](#contents)
