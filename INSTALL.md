@@ -385,6 +385,63 @@ cd product-team-skills
 
 ---
 
+## Part 6 — Codex, and other hosts that read `SKILL.md`
+
+The skills are plain markdown following the [Agent Skills](https://agentskills.io)
+standard, so they are not Claude's alone. Codex reads them, and so does anything
+else built on the same standard. Two differences from Parts 2 and 3, both small:
+
+- they live in **`.agents/skills/`**, not `.claude/skills/`
+- you invoke one with **`$product-manager`**, not `/product-manager`
+
+### The whole suite, in one command
+
+```bash
+git clone https://github.com/afovea/product-team-skills.git
+cd product-team-skills
+./install.sh --agents --personal
+```
+
+That puts all 28 skills in `~/.agents/skills/`, where Codex finds them in every
+project. Start Codex and type `$product-` — the roles should autocomplete.
+
+For one project instead, and to get the routing brain with it:
+
+```bash
+./install.sh --agents /path/to/your/project
+```
+
+That writes the skills to `<project>/.agents/skills/`, appends the routing brain
+to the project's `AGENTS.md`, and seeds the pipeline adapter. `--agents` works
+with every mode in [Advanced routes](#advanced-routes) below, including
+`--routing-only` and `--submodule`.
+
+### Committing them to a repository
+
+`.agents/skills/` is a location Codex scans in the repository itself, so a team
+can commit the skills and everyone gets them without installing anything:
+
+```bash
+./install.sh --agents /path/to/your/repo
+```
+
+then commit `.agents/`. Note that `install.sh` adds `.agents/` to `.gitignore` by
+default, on the assumption it is a personal install — delete that line first if
+you want the suite tracked.
+
+### What you get
+
+Everything Claude Code gets, including gate enforcement: the `Stop` hook that
+refuses to end a turn while a project's checks are failing works on both hosts,
+because both use the same event contract.
+
+The one thing to know is that the roles do **not** fire on their own. That is
+deliberate — automatic selection by keyword picks badly, so `$name` is how you
+choose. The exception is `$ppot`, whose natural-language phrases are its intended
+interface. See [Invoking a skill](./README.md#invoking-a-skill).
+
+---
+
 ## Something went wrong
 
 ### `Plugin "product-team" not found in marketplace "product-team-skills"`
@@ -409,6 +466,36 @@ In order:
    `/reload-plugins --force` if it warns you.
 2. Are you in a session that started before you installed? Start a new one.
 3. Still missing? Close Claude Code, reopen it, and try again.
+
+### Codex does not list the skills after installing them
+
+Codex reads its skill directories when a session starts, so a session that was
+already open will not see them. Quit and restart Codex, then type `$product-`.
+
+If they are still missing, check they landed in the right place — it is
+`.agents/skills/`, not `.codex/skills/`:
+
+```bash
+ls ~/.agents/skills/ | head
+```
+
+Nothing there means the install went to the Claude layout. Re-run it with
+`--agents`. `./install.sh --verify` reports both layouts and will tell you which
+one you actually have.
+
+### A role fires on its own in Codex when it should not
+
+Every role is meant to wait until you type `$name`. If one is answering
+unprompted, its `agents/openai.yaml` is missing or was not copied — that file is
+what carries `allow_implicit_invocation: false` to Codex. Re-run the install to
+replace it:
+
+```bash
+./install.sh --agents --personal
+```
+
+`$ppot` is the deliberate exception and is supposed to respond to phrases like
+"bring me up to speed".
 
 ### `claude: command not found`
 
@@ -469,10 +556,12 @@ help.
 | | The 28 skills | Delivery pipeline | Routing brain | Gate enforcement |
 |---|---|---|---|---|
 | Claude Code — desktop app or terminal | ✅ all at once | ✅ | ✅ via [Part 5](#part-5--optional--let-claude-pick-the-expert) | ✅ |
+| Codex, and other `SKILL.md` hosts | ✅ all at once via [Part 6](#part-6--codex-and-other-hosts-that-read-skillmd) | ✅ | ✅ into `AGENTS.md` | ✅ on Codex |
 | Claude for chatting | ✅ the ones you upload | partly — built for Claude Code | ❌ | ❌ |
 
-**Gate enforcement** stops Claude ending a turn while a project's checks are
-failing. It only applies to coding work, and only Claude Code can do it.
+**Gate enforcement** stops the agent ending a turn while a project's checks are
+failing. It only applies to coding work, and needs a host with hooks — Claude
+Code and Codex both have them; chat does not.
 
 ---
 
@@ -487,6 +576,7 @@ For teams and repositories. The [README](./README.md) has the detail.
 | Personal | `./install.sh --personal` | 28 skills on disk, every project |
 | Routing only | `./install.sh --routing-only /path` | the routing brain, nothing else |
 | Submodule | `./install.sh --submodule /path` | pinned to a tag, symlinked |
+| Any of the above, for Codex | add `--agents` | the same, written to `.agents/skills/` and `AGENTS.md` |
 
 `./install.sh --verify` reports every install it can find and flags conflicts.
 Run it first if you are unsure what state you are in.

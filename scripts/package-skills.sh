@@ -15,11 +15,11 @@
 # Those products take one skill at a time as a ZIP containing a single folder
 # with a SKILL.md inside it, which is the layout of each directory under skills/.
 #
-# One deliberate difference from the source. Every SKILL.md carries
-# `disable-model-invocation: true`, which in Claude Code stops a skill firing on
-# its own so you invoke it as /name. The Claude apps have no /name invocation —
-# Claude choosing the skill is the only way one ever runs — so that line is
-# removed on the way in. Leaving it risks packaging skills that can never fire.
+# Two deliberate differences, both the same rule: nothing that could stop a
+# skill firing survives the trip. `disable-model-invocation: true` in SKILL.md
+# and `policy.allow_implicit_invocation: false` in agents/openai.yaml both mean
+# "explicit invocation only", and the Claude apps have none — so both are
+# stripped. The rest of openai.yaml is portable metadata and travels unchanged.
 
 set -euo pipefail
 
@@ -81,6 +81,30 @@ for n in "${NAMES[@]}"; do
     infm && /^disable-model-invocation:[[:space:]]/ { next }
     { print }
   ' "$SRC/$n/SKILL.md" > "$STAGE/$n/SKILL.md"
+
+  # The same rule applied to the Codex invocation policy. Only the policy block
+  # goes: the interface metadata is host-neutral, so it travels with the skill.
+  # The second awk trims the blank line the removed block leaves behind, because
+  # a trailing newline that comes and goes would churn the archive bytes.
+  if [[ -f "$SRC/$n/agents/openai.yaml" ]]; then
+    awk '
+      /^policy:([[:space:]]|$)/ { skip = 1; next }
+      skip && /^[[:space:]]*$/  { next }
+      skip && /^[[:space:]]/    { next }
+      { skip = 0; print }
+    ' "$SRC/$n/agents/openai.yaml" \
+      | awk '{ l[NR] = $0 }
+             END { e = NR
+                   while (e > 0 && l[e] ~ /^[[:space:]]*$/) e--
+                   for (i = 1; i <= e; i++) print l[i] }' \
+      > "$STAGE/$n/agents/openai.yaml"
+
+    # A file that was nothing but policy has nothing left worth shipping.
+    if [[ ! -s "$STAGE/$n/agents/openai.yaml" ]]; then
+      rm -f "$STAGE/$n/agents/openai.yaml"
+      rmdir "$STAGE/$n/agents" 2>/dev/null || true
+    fi
+  fi
 
   # Normalise everything the archive records besides the file contents, so the
   # same skills produce the same bytes on any machine and CI can diff the

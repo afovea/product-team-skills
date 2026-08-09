@@ -1,0 +1,6 @@
+interface:
+  display_name: "Accessibility Specialist"
+  short_description: "WCAG review, inclusive design, assistive-tech risk, data-visualisation accessibility"
+
+policy:
+  allow_implicit_invocation: false

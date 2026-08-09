@@ -1,0 +1,6 @@
+interface:
+  display_name: "STORM Researcher"
+  short_description: "Contested or strategic research — five-perspective scan, contradiction mapping, adversarial review"
+
+policy:
+  allow_implicit_invocation: false

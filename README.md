@@ -26,6 +26,7 @@ The same model as a FigJam workshop kit: a run-sheet per capability, timed zones
   - [C · Claude app, Code tab (Claude Code)](#c--claude-app-code-tab-claude-code)
   - [D · Claude Code in a terminal](#d--claude-code-in-a-terminal)
   - [E · Claude Code on the web (cloud sessions)](#e--claude-code-on-the-web-cloud-sessions)
+  - [F · Codex, and other `SKILL.md` hosts](#f--codex-and-other-skillmd-hosts)
 - [Invoking a skill](#invoking-a-skill) — naming a role in chat, `/name` in Claude Code, and why automatic selection differs by host
 - [Project Point of Truth](#project-point-of-truth) — the `/ppot` practice and the pull/push handshake every skill uses
 - [The 28 skills](#the-28-skills) — every role and pipeline skill, grouped, with when to reach for it
@@ -59,6 +60,7 @@ most common failed install.
 | **Claude app** — desktop app, **Code** tab | Two typed lines, all 28 | [C](#c--claude-app-code-tab-claude-code) |
 | **Claude Code** — a terminal | Two typed lines, all 28 | [D](#d--claude-code-in-a-terminal) |
 | **Claude Code on the web** — `claude.ai/code`, cloud sessions | A committed settings file | [E](#e--claude-code-on-the-web-cloud-sessions) |
+| **Codex** — or any host reading `SKILL.md` | One command, all 28 | [F](#f--codex-and-other-skillmd-hosts) |
 
 ---
 
@@ -155,6 +157,29 @@ Add this to `.claude/settings.json` **in that repository** and commit it:
 Merge these keys into the file if it already exists. If `.gitignore` contains
 `.claude/`, add `!.claude/settings.json` or the file will never be committed.
 
+### F · Codex, and other `SKILL.md` hosts
+
+Not Claude at all. The skills follow the [Agent Skills](https://agentskills.io)
+standard, so any host built on it reads them — Codex included. Two differences:
+they live in `.agents/skills/`, and you invoke one with `$name`.
+
+```bash
+git clone https://github.com/afovea/product-team-skills.git
+cd product-team-skills
+./install.sh --agents --personal
+```
+
+All 28 into `~/.agents/skills/`, available in every project. Restart Codex, then:
+
+```
+$product-manager Turn this vague feature request into a delivery-ready ticket.
+```
+
+Add `--agents` to any other mode for the same result in that layout —
+`./install.sh --agents /path/to/project` also writes the routing brain to the
+project's `AGENTS.md` and seeds the pipeline adapter. Gate enforcement travels
+too: the `Stop` hook works on both hosts.
+
 ---
 
 **➡️ [Step-by-step guide for all of these, written for non-technical users](./INSTALL.md)**
@@ -184,6 +209,16 @@ As a content designer, rewrite this error: "Error 4012: request failed."
 If Claude picks the wrong expert, say so — "answer this as a content designer,
 not a product manager". Uploading fewer skills makes it pick better.
 
+### In Codex
+
+Type `$` then the skill name. Everything else is the same.
+
+```
+$product-designer Our reports page is blank for new users. Design the empty state.
+$security-specialist Review this migration for RLS gaps.
+$run-pipeline Add a /health route returning DB connectivity.
+```
+
 ### In Claude Code
 
 Type `/` then the skill name.
@@ -211,6 +246,13 @@ testing showed that picks badly — "payments integration" pulled the Pricing
 Strategist, "release risk" pulled the Delivery Manager. You get selection
 explicitly with `/name`, or via [the routing brain](#the-routing-brain-optional-second-layer)
 when you don't know which discipline you want.
+
+Codex is told the same thing in its own dialect. It does not read
+`disable-model-invocation`, so each of those 27 skills carries an
+`agents/openai.yaml` setting `policy.allow_implicit_invocation: false`. Without
+that file the roles would fire on their own there — the exact behaviour measured
+and rejected above. CI checks the two stay in step, so a new skill cannot suppress
+itself on one host and not the other.
 
 The `/ppot` practice is the exception. Its natural-language phrases — such as
 “bring me up to speed”, “record our decision”, and “check this against the
@@ -356,6 +398,7 @@ exact error text. The summary:
 | **Personal** | `install.sh --personal` | Skills in `~/.claude/skills/` — every project. Skills only |
 | **Submodule** | `install.sh --submodule /path/to/project` | Per-project, pinned to a tag, symlinked so discovery still works |
 | **Claude apps** *(no terminal)* | download a ZIP from [`download/`](./download), upload it | The roles you upload, in claude.ai and the Chat tab. No routing brain, no hook |
+| **Codex / open standard** | add `--agents` to any `install.sh` route | The same, written to `.agents/skills/` and `AGENTS.md`, invoked as `$name` |
 
 The script is in the repo, so clone first for those routes:
 
@@ -458,17 +501,31 @@ Earlier versions nested the eight pipeline skills one level deeper, so an old in
 
 ### Compatibility
 
-The skills are plain markdown following the [Agent Skills](https://agentskills.io) standard, so they work with any host that reads `SKILL.md`. The plugin route, `/name` invocation and `claude plugin` CLI are Claude Code features. The routing brain is a `CLAUDE.md` convention and needs a host that reads that file.
+The skills are plain markdown following the [Agent Skills](https://agentskills.io) standard, so they work with any host that reads `SKILL.md`. Two hosts are supported with a route of their own rather than left to you to wire up: Claude Code, and Codex.
 
-Gate enforcement is the one capability that does not travel. Hooks are a Claude Code feature, so on any other `SKILL.md` host the pipeline skills still run and still report a failing gate — they just cannot be stopped by one. The skills remain fully portable; only the `Stop` hook is host-specific.
+The suite is written twice over where the two disagree, so neither is a second-class citizen:
+
+| | Claude Code | Codex |
+|---|---|---|
+| Skills | `.claude/skills/` | `.agents/skills/` |
+| Invocation | `/name` | `$name` |
+| Suppress auto-selection | `disable-model-invocation` | `agents/openai.yaml` |
+| Routing brain | `CLAUDE.md` | `AGENTS.md` |
+| Plugin manifest | `.claude-plugin/` | `.codex-plugin/` |
+| Gate enforcement | `Stop` hook | `Stop` hook |
+
+`install.sh` writes either — add `--agents` for the second column — and `./install.sh --verify` reports both.
 
 What survives on each surface:
 
 | | Skills | Routing brain | Gate hook |
 |---|---|---|---|
 | Claude Code — terminal, desktop **Code** tab, cloud | ✅ | ✅ with a project install | ✅ |
+| Codex — CLI and IDE | ✅ | ✅ with a project install | ✅ |
 | Claude apps — claude.ai, desktop **Chat** tab, Cowork | ✅ ones you upload | ❌ no `CLAUDE.md` | ❌ no hooks |
-| Any other `SKILL.md` host | ✅ | depends on the host | ❌ |
+| Any other `SKILL.md` host | ✅ via `--agents` | depends on the host | depends on the host |
+
+Gate enforcement needs a host with hooks. Claude Code and Codex both have a `Stop` event that a hook can refuse, and the same script serves both. Where hooks do not exist, the pipeline skills still run and still report a failing gate — they just cannot be stopped by one.
 
 Claude Code in **WSL** is the one Claude Code surface without plugins — use a filesystem install there.
 
@@ -569,10 +626,16 @@ product-team-skills/
 ├── .claude-plugin/
 │   ├── plugin.json                   # makes this an installable plugin
 │   └── marketplace.json              # makes the repo an addable marketplace
+├── .codex-plugin/
+│   └── plugin.json                   # the same, for Codex. Points at skills/
+│                                     #   and hooks/, so nothing is duplicated
 ├── skills/                           # all 28 skills, flat, one directory each
-│   ├── product-manager/SKILL.md
+│   ├── product-manager/
+│   │   ├── SKILL.md
+│   │   └── agents/openai.yaml        # Codex display name + invocation policy
 │   ├── ppot/                         # project knowledge practice
 │   │   ├── SKILL.md
+│   │   ├── agents/openai.yaml        # no policy block — this one may self-fire
 │   │   ├── references/               # schema and governance
 │   │   └── assets/PPoT-template.md
 │   ├── motion-designer/
@@ -611,7 +674,8 @@ product-team-skills/
 ## Conventions
 
 - All skills use **UK English**.
-- Every skill carries the standard `name` and `description`. Role and pipeline skills additionally use the repository's Claude-specific invocation and metadata fields. The PPoT practice keeps portable minimal frontmatter and supplies Codex UI metadata under `agents/openai.yaml`.
+- Every skill carries the standard `name` and `description`. Role and pipeline skills additionally use the repository's Claude-specific invocation and metadata fields. The PPoT practice keeps portable minimal frontmatter.
+- Every skill also carries an `agents/openai.yaml` with its display name and short description for Codex. The 27 that set `disable-model-invocation: true` add `policy.allow_implicit_invocation: false` there, which is the same instruction in Codex's dialect; `ppot` deliberately omits it. `scripts/verify.sh` fails if the two ever disagree, so adding a skill means adding both.
 - Keep skill bodies **under 500 lines**, per [Anthropic's authoring guidance](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices). Past that, move detail into that skill's `references/` and link to it with a stated trigger for when to read it.
 - Every skill ends with `## Maintenance` listing its review triggers. Treat that as a versioning prompt: bump role and pipeline skill metadata when their behaviour changes, and bump the plugin version when the shared PPoT practice changes.
 

@@ -5,9 +5,12 @@ Standalone: no third-party dependencies, no JavaScript assumptions.
 Usable from a skill, from CI, or from the Stop hook in gate-stop.py.
 
 Gate list resolution, first hit wins:
-  1. .claude/pipeline-gates.json
-  2. a ```gates fenced block in .claude/pipeline-adapter.md
+  1. <config>/pipeline-gates.json
+  2. a ```gates fenced block in <config>/pipeline-adapter.md
   3. discovery from package.json, Makefile, pyproject.toml
+
+<config> is .claude/ or .agents/ — whichever the project actually uses. See
+config_dir().
 
 Subcommands:
   run     [--stamp]  run the chain; on a clean pass optionally write a stamp
@@ -45,10 +48,28 @@ STAMP_NAME = "stamp.json"
 # --------------------------------------------------------------------------
 
 def project_dir() -> Path:
-    return Path(os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()).resolve()
+    return Path(os.environ.get("CLAUDE_PROJECT_DIR")
+                or os.environ.get("CODEX_PROJECT_DIR")
+                or os.getcwd()).resolve()
 
 
-def claude_dir(root: Path) -> Path:
+def config_dir(root: Path) -> Path:
+    """Where the pipeline's declared config and its scratch live.
+
+    `.claude/` is the original home and `.agents/` is the open-standard location
+    other SKILL.md hosts use. Whichever actually holds pipeline config wins, so a
+    project that has both — a Claude Code settings directory beside an `.agents`
+    install, say — still resolves to the one with the adapter in it. Failing
+    that, an existing directory; failing that, `.claude/`, which is where a
+    fresh Claude install puts things.
+    """
+    candidates = (root / ".claude", root / ".agents")
+    for base in candidates:
+        if (base / "pipeline-gates.json").is_file() or (base / "pipeline-adapter.md").is_file():
+            return base
+    for base in candidates:
+        if base.is_dir():
+            return base
     return root / ".claude"
 
 
@@ -139,7 +160,7 @@ def _normalise(raw: list[dict]) -> list[dict]:
 
 
 def from_config(root: Path) -> list[dict]:
-    path = claude_dir(root) / "pipeline-gates.json"
+    path = config_dir(root) / "pipeline-gates.json"
     if not path.is_file():
         return []
     try:
@@ -155,7 +176,7 @@ def from_adapter(root: Path) -> list[dict]:
     Each line is `name: command`, or a bare command. A leading `?` marks the
     gate non-blocking (it runs and reports, but never blocks).
     """
-    path = claude_dir(root) / "pipeline-adapter.md"
+    path = config_dir(root) / "pipeline-adapter.md"
     if not path.is_file():
         return []
     try:
@@ -288,7 +309,7 @@ def run_chain(root: Path, gates: list[dict]) -> dict:
 # --------------------------------------------------------------------------
 
 def stamp_path(root: Path) -> Path:
-    return claude_dir(root) / GATE_DIR / STAMP_NAME
+    return config_dir(root) / GATE_DIR / STAMP_NAME
 
 
 def write_stamp(root: Path, summary: dict) -> None:
@@ -347,12 +368,13 @@ def main() -> int:
 
     # run
     if not gates:
+        cfg = config_dir(root).name   # name the directory this project uses
         print(json.dumps({
             "passed": False,
             "source": source,
             "error": "No gate chain declared and none discoverable. "
-                     "Add a ```gates block to .claude/pipeline-adapter.md "
-                     "or a .claude/pipeline-gates.json.",
+                     f"Add a ```gates block to {cfg}/pipeline-adapter.md "
+                     f"or a {cfg}/pipeline-gates.json.",
         }))
         return 3
 

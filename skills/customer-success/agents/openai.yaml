@@ -1,0 +1,6 @@
+interface:
+  display_name: "Customer Success"
+  short_description: "Customer feedback, retention signals, adoption blockers"
+
+policy:
+  allow_implicit_invocation: false

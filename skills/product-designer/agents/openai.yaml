@@ -1,0 +1,6 @@
+interface:
+  display_name: "Product Designer"
+  short_description: "UX, UI, flows, interaction design, design QA"
+
+policy:
+  allow_implicit_invocation: false

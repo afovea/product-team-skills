@@ -1,0 +1,6 @@
+interface:
+  display_name: "Pricing Strategist"
+  short_description: "Pricing models, tier structure, packaging, willingness-to-pay"
+
+policy:
+  allow_implicit_invocation: false

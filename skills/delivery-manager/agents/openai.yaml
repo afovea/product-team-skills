@@ -1,0 +1,6 @@
+interface:
+  display_name: "Delivery Manager"
+  short_description: "Delivery planning, dependencies, ceremonies — risk to schedule and flow"
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,6 @@
+interface:
+  display_name: "UX Researcher"
+  short_description: "Research planning, discovery, interviews, synthesis, validation"
+
+policy:
+  allow_implicit_invocation: false

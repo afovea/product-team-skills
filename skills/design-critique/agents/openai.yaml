@@ -1,0 +1,6 @@
+interface:
+  display_name: "Design Critique"
+  short_description: "Final-pass design review with a SHIP / SHIP_WITH_NOTES / HOLD decision"
+
+policy:
+  allow_implicit_invocation: false

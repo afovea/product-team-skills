@@ -1,0 +1,6 @@
+interface:
+  display_name: "Requirements Generator"
+  short_description: "Turning a rough request into a confirmation-ready brief"
+
+policy:
+  allow_implicit_invocation: false

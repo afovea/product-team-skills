@@ -44,7 +44,11 @@ def emit(payload: dict) -> None:
 
 
 def project_dir(event: dict) -> Path:
+    # CLAUDE_ first so an existing Claude Code install resolves exactly as
+    # before; the rest are the same idea under other hosts' names. Codex's Stop
+    # event carries `cwd` too, so the event fallback already covers it.
     raw = (os.environ.get("CLAUDE_PROJECT_DIR")
+           or os.environ.get("CODEX_PROJECT_DIR")
            or event.get("cwd")
            or os.getcwd())
     return Path(raw).resolve()
@@ -52,21 +56,28 @@ def project_dir(event: dict) -> Path:
 
 def runner_path() -> Path:
     """gate-chain.py lives in scripts/, one level up from hooks/."""
-    root = os.environ.get("CLAUDE_PLUGIN_ROOT")
-    if root:
-        candidate = Path(root) / "scripts" / "gate-chain.py"
-        if candidate.is_file():
-            return candidate
+    # Codex supplies CLAUDE_PLUGIN_ROOT as a compatibility variable alongside
+    # its own PLUGIN_ROOT, so the first entry usually wins on both hosts. The
+    # __file__ fallback below covers a host that sets neither.
+    for var in ("CLAUDE_PLUGIN_ROOT", "PLUGIN_ROOT"):
+        root = os.environ.get(var)
+        if root:
+            candidate = Path(root) / "scripts" / "gate-chain.py"
+            if candidate.is_file():
+                return candidate
     return Path(__file__).resolve().parent.parent / "scripts" / "gate-chain.py"
 
 
 def state_files(root: Path) -> list[Path]:
-    base = root / ".claude"
+    # Both host layouts are scanned rather than one chosen, because a run is
+    # open if any of them says so. `.claude/` is listed first only so its
+    # results sort first; neither directory has to exist.
     found: list[Path] = []
-    for pattern in STATE_GLOBS:
-        for path in sorted(base.glob(pattern)):
-            if path.is_file() and GATE_DIR not in path.parts:
-                found.append(path)
+    for base in (root / ".claude", root / ".agents"):
+        for pattern in STATE_GLOBS:
+            for path in sorted(base.glob(pattern)):
+                if path.is_file() and GATE_DIR not in path.parts:
+                    found.append(path)
     return found
 
 

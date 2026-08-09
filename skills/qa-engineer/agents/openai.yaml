@@ -1,0 +1,6 @@
+interface:
+  display_name: "QA Engineer"
+  short_description: "Test planning, regression, bug reporting, durable proof of verification"
+
+policy:
+  allow_implicit_invocation: false

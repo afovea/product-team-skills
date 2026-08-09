@@ -1,0 +1,6 @@
+interface:
+  display_name: "Software Engineer"
+  short_description: "Implementation, feasibility, trade-offs, library selection, version-matched API use"
+
+policy:
+  allow_implicit_invocation: false
